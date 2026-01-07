@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+    <body>
+        <h1 id="header1">50/50 quiz</h1>
+        <h3 id="header2">by Amar Sljivo</h3>
+        <div id="quiz-container">
+            <div id="question-container">
+                <div id="question">Is the sky blue?</div>
+                <div id="answer-buttons" class="btn-grid">
+                    <button class="btn" id="Yes">Yes</button>
+                    <button class="btn" id="No">No</button>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="restart" class="restart">Restart</button>
+                <button id="next-btn" class="next-btn">Next</button>
+            </div>
+            <p id="result"></p>
+        </div>
+        <script src="yesNo.js"></script>
+
+    </body>
+</html>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-image:url("all.jpg") ;
+        background-position: center;
+        margin: 0;
+
+        padding: 20px;
+    }
+
+    #header1 {
+        font-size: 60px;
+        margin-bottom: 0;
+        color:white;
+    }
+
+    #header2 {
+        font-size: 1.5em;
+        margin-top: 0;
+        color: #ffffff;
+    }
+
+    #quiz-container {
+        margin-top: 30px;
+    }
+
+    #question {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        color:whitesmoke;
+    }
+
+    .btn-grid {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    #Yes {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #00b00f;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    #No {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #ff0000;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    .controls {
+        margin-top: 20px;
+    }
+
+    .next-btn {
+        display: none;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #0056b3;
+        color:white;
+        
+    }
+
+    .restart{
+        padding: 10px 20px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 5px;
+        background-color: #b5bb47;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+    #result{
+        color: white;
+    }
+    
+</style>
