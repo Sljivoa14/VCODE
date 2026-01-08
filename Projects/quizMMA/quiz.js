@@ -28,8 +28,7 @@ buttons.forEach(button => {button.addEventListener("click", () => {
   
 /*
 
-buttons.forEach(button => {
-  button.addEventListener("click", () => {
+buttons.forEach(button => {button.addEventListener("click", () => {
     const fighter = button.dataset.fighter;
     if (!fighter) return;*/
 

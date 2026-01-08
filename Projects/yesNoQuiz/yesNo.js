@@ -28,7 +28,12 @@ const questions = [
   { text: "Was Obama The 44th president of USA?", answer: true },
   { text: "Did Pablo Escobar have a lot of children?", answer: false },
   { text: "Click yes?", answer: true },
-  { text: "Click yes?", answer: true },
+  { text: "The next Question is a lie(Click yes)?", answer: true },
+  { text: "Click no", answer: true },
+  { text: "Same answer asnswer as the last question?", answer: true },
+  { text: "dont click yes?", answer: false },
+  { text: "The next Question is a lie(Click yes)?", answer: true },
+  { text: "The next Question is a lie(Click yes)?", answer: true },
   
 
 ];
