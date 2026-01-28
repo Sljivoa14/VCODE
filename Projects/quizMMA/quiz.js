@@ -35,7 +35,6 @@ buttons.forEach(button => {button.addEventListener("click", () => {
     const answerBox = button.parentElement;
     const selectedBtn = answerBox.querySelector(".selected");
 
-    // clicking same button → deselect
     if (button === selectedBtn) {
       button.classList.remove("selected");
       scores[fighter]--;
@@ -62,7 +61,7 @@ function restartQuiz() {
 
 };
 
-  // Deselect all buttons
+  
   restart.addEventListener("click", () => {
     buttons.forEach(button => {
       button.classList.remove("selected");
@@ -97,10 +96,10 @@ function allAnswered() {
     const selected = box.querySelector(".selected");
 
     if (!selected) {
-      return false; // missing answer
+      return false; 
     }
   }
-  return true; // all answered
+  return true; 
 }
 
 /*document.getElementById("finishQ").addEventListener("click",finishQuiz);

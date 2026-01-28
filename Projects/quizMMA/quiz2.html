@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Koji si ti MMA borac?</h1>
+
+    <div class="question">
+        <p>1. What is your favorite style?🥷</p>
+        <input type="radio" name="q1" value="1"> boxing<br>
+        <input type="radio" name="q1" value="2"> muy thai<br>
+        <input type="radio" name="q1" value="3"> bjj<br>
+        <input type="radio" name="q1" value="4"> wrestling
+    </div>
+
+    <div class="question">
+        <p>2. what kind of finish is your favorite?⚔️</p>
+        <input type="radio" name="q2" value="1"> ko<br>
+        <input type="radio" name="q2" value="2"> tko<br>
+        <input type="radio" name="q2" value="3"> sumbition<br>
+        <input type="radio" name="q2" value="4"> decision
+    </div>
+
+    <div class="question">
+        <p>3. f not Martial Arts, what sport would you play?🏟️</p>
+        <input type="radio" name="q3" value="1"> football<br>
+        <input type="radio" name="q3" value="2"> basketball<br>
+        <input type="radio" name="q3" value="3"> rugby <br>
+        <input type="radio" name="q3" value="4"> other
+
+    <button onclick="calculateResult()">Provjeri rezultat</button>
+
+    <div id="result"></div>
+</div>
+    
+</body>
+<script src="quiz2.js"></script>
+</html>
+
+<style>
+    /*body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-image:url("harry.jpg") ;
+        background-position: center;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 50px;
+        margin-bottom: 0;
+        color:rgb(0, 0, 0);
+    }
+
+    .question {
+        font-size: 1.5em;
+        margin: 20px 0;
+        color:rgb(0, 0, 0);
+    }
+
+    #result {
+        font-size: 1.8em;
+        margin-top: 20px;
+        color: yellow;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+*/
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #b74646;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    align-content: center;
+  }
+
+  #img1 {
+    display: block;
+    margin: 0 auto 20px;
+    border-radius: 10px;
+
+  }
+
+  #all{
+    align-content: center;
+  }
+
+  #finishQ{
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  h1 {
+    color: #333;
+    text-align: center;
+    font-size: 60px;
+  }
+
+  #quiz-container {
+    background: #fff;
+    margin: 0 auto; 
+    width: 90%;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .text{
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .question {
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    align-self: center;
+    width: 50%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #007BFF;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  .answer-btn:hover {
+    background-color: #0056b3;
+  }
+
+ #finalImage{
+    display: block;
+    margin: 20px auto;
+    max-width: 300px;
+    border-radius: 10px;
+    align-items: center;
+ }
+
+ #restart{
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+ }
+  .answer-btn.selected {
+  background-color: #355c3e;
+}
+</style>
+
+
+
+
+

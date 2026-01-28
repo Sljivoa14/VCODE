@@ -7,7 +7,10 @@ const result = document.getElementById("result");
 const restartBtn = document.getElementById("restart");
 
 
-const questions = [
+
+let a = 0;
+a = a + 1;
+const questions = [   
   { text: "Is the sky blue?", answer: true },
   { text: "Is fire cold?", answer: false},
   { text: "Is water wet?", answer: true },
