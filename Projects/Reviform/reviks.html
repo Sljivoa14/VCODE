@@ -1,99 +1,268 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="reviks.css">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reviform - Revizorska Firma</title>
+  <meta name="description" content="Reviform - Profesionalne revizorske usluge, revizija finansijskih izvještaja i savjetovanje">
+  <link rel="stylesheet" href="reviks.css">
 </head>
-    <body>
-        <nav class="navbar" id="navbar">
-            <div class="logo">
-                <h1><span>REVIFORM</span>Revizije</h1>
-                <p id="p1">Vise nego Odlicno</p>
-            </div>
-        <ul class="nav-links">
-            <li><a href="reviks.html">Home</a></li>
-            <li><a href="about.html">O nama </a></li>
-            <li><a href="contact.html">Usluge</a></li>
-            <li><a href="Benifiti.html">Benefiti</a></li>
-        </ul>
-        </nav>
-         <section class="hero" id="home">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h2>Text Of The Prin Ting And Type Setting</h2>
-                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
-                    <a href="#many" class="hero-button">Printing And</a>
-                </div>
-                <div class="hero-image"></div>
-            </div>
-        </section>
-        
-        
 
-  <!-- Footer Section -->
-    <footer class="footer">
-        <div class="footer-wave"></div>
-            <div class="footer-content">
-            <div class="footer-container">
-        <!-- Company Info -->
-        <div class="footer-column company-info">
-          <div class="company-logo">
-            <span class="logo-your">REVIFORM</span><span class="logo-company">revizije</span>
+<body>
+  <div id="root"></div>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="logo">
+          <span class="logo-text">Reviform </span>
+            <span class="logo-subtext">Vise nego odlicno</span>
+        </div>
+        <div class="nav-menu" id="navMenu">
+          <a href="#pocetna" class="nav-link">Početna</a>
+          <a href="#o-nama" class="nav-link">O Nama</a>
+          <a href="#ciljevi-misija" class="nav-link">Ciljevi i Misija</a>
+          <a href="#kontakt" class="nav-link">Kontakt</a>
+        </div>
+        <button class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="pocetna" class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Dobrodošli u Reviform</h1>
+        <p class="hero-subtitle">Vaš pouzdani partner za profesionalne revizorske i konsultantske usluge</p>
+        <p class="hero-description">
+          Pružamo visokokvalitetne usluge revizije, finansijskog savjetovanja i podrške vašem poslovanju
+        </p>
+        <a href="#kontakt" class="cta-button">Kontaktirajte nas</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="o-nama" class="about">
+    <div class="container">
+      <h2 class="section-title">O Nama</h2>
+      <div class="about-content">
+        <div class="about-text">
+          <p>
+            <strong>Reviform</strong> je vodeća revizorska firma koja se bavi pružanjem sveobuhvatnih revizorskih usluga,
+            finansijskim savjetovanjem i podrškom preduzećima u različitim industrijama.
+          </p>
+          <p>
+            Naš tim čine visokokvalificirani stručnjaci sa bogatim iskustvom u oblasti računovodstva,
+            revizije i finansijskog upravljanja. Posvećeni smo pružanju usluga najvišeg kvaliteta i
+            izgradnji dugoročnih odnosa sa našim klijentima.
+          </p>
+          <p>
+            Sa godinama iskustva, razvili smo duboko razumijevanje specifičnih potreba tržišta i
+            regulatornih zahtjeva. Naša stručnost obuhvata različite sektore, uključujući proizvodnju,
+            trgovinu, usluge i neprofitne organizacije.
+          </p>
+        </div>
+        <div class="about-features">
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Stručnost</h3>
+            <p>Tim certificiranih revizora sa međunarodnim iskustvom</p>
           </div>
-          <p class="company-slogan">vise nego odlicno</p>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Preciznost</h3>
+            <p>Detaljna analiza i pažljiv pristup svakom projektu</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Povjerenje</h3>
+            <p>Transparentan rad i dugoročno partnerstvo</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Efikasnost</h3>
+            <p>Brze i kvalitetne usluge prilagođene vašim potrebama</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Goals and Mission Section -->
+  <section id="ciljevi-misija" class="goals-mission">
+    <div class="container">
+      <h2 class="section-title">Ciljevi i Misija</h2>
+      <div class="goals-mission-content">
+        <div class="mission-box">
+          <div class="box-header">
+            <h3>Naša Misija</h3>
+          </div>
+          <div class="box-content">
+            <p>
+              Naša misija je pružanje visokokvalitetnih revizorskih i konsultantskih usluga koje pomažu
+              našim klijentima da postignu finansijsku transparentnost, usklađenost sa propisima i
+              održivi poslovni rast.
+            </p>
+            <p>
+              Težimo da budemo pouzdani partner koji dodaje vrijednost kroz stručno znanje, integritet
+              i profesionalizam u svakom aspektu našeg rada.
+            </p>
+          </div>
         </div>
 
-        <!-- Some Us Links -->
-        <div class="footer-column">
-          <h4 class="footer-heading">O Kompaniji</h4>
-          <ul class="footer-links">
-            <li><a href="reviks.css">Poćetna</a></li>
-            <li><a href="Onama.html">O nama</a></li>
-            <li><a href="Usluge.html">Uslage</a></li>
-            <li><a href="Benefiti.html">Benefiti usluge</a></li>
-            
-          </ul>
-        </div>
-
-        <!-- Generated Links -->
-        <div class="footer-column">
-          <h4 class="footer-heading">Generated</h4>
-          <ul class="footer-links">
-            <li><a href="#">Ploic</a></li>
-            <li><a href="#">Characterist</a></li>
-            <li><a href="#">Predefined Chunks As Nec</a></li>
-            <li><a href="#">Contrary To Belief</a></li>
-            <li><a href="#">Lorem Ipsum</a></li>
-          </ul>
-        </div>
-
-        <!-- Contact Us -->
-        <div class="footer-column">
-          <h4 class="footer-heading">Contact  Us</h4>
-          <ul class="contact-list">
-            <li>
-              <span class="contact-icon">📞</span>
-              <span>061 33473653</span>
-            </li>
-                <li>
-                    <span class="contact-icon">✉</span>
-                        <span>reviks@gmail.com</span>
-                    </li>
-                        <li>
-                            <span class="contact-icon">📍</span>
-                            <span>Ul.đoke mazalića, 1 <br>Prvi sprat</span>
-                        </li>
-                        </ul>
-                    </div>
+        <div class="goals-box">
+          <div class="box-header">
+            <h3>Naši Ciljevi</h3>
+          </div>
+          <div class="box-content">
+            <ul class="goals-list">
+              <li>
+                <span class="goal-number">01</span>
+                <div class="goal-text">
+                  <h4>Izvrsnost u Usluzi</h4>
+                  <p>Pružanje vrhunskih revizorskih usluga koje prelaze očekivanja klijenata</p>
                 </div>
-
-            <div class="footer-bottom">
-                <p>Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor Incididiu</p>
+              </li>
+              <li>
+                <span class="goal-number">02</span>
+                <div class="goal-text">
+                  <h4>Profesionalni Razvoj</h4>
+                  <p>Kontinuirano unapređenje znanja i vještina našeg tima</p>
                 </div>
+              </li>
+              <li>
+                <span class="goal-number">03</span>
+                <div class="goal-text">
+                  <h4>Integritet i Transparentnost</h4>
+                  <p>Održavanje najviših etičkih standarda u svim poslovnim aktivnostima</p>
+                </div>
+              </li>
+              <li>
+                <span class="goal-number">04</span>
+                <div class="goal-text">
+                  <h4>Dugoročno Partnerstvo</h4>
+                  <p>Izgradnja trajnih odnosa zasnovanih na povjerenju i rezultatima</p>
+                </div>
+              </li>
+              <li>
+                <span class="goal-number">05</span>
+                <div class="goal-text">
+                  <h4>Inovacija</h4>
+                  <p>Primjena najnovijih metoda i tehnologija u revizorskoj praksi</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="kontakt" class="contact">
+    <div class="container">
+      <h2 class="section-title">Kontaktirajte Nas</h2>
+      <div class="contact-content">
+        <div class="contact-info">
+          <h3>Informacije</h3>
+          <div class="info-item">
+            <div class="info-icon">📍</div>
+            <div>
+              <h4>Adresa</h4>
+              <p>Trg BiH 1, 71000 Sarajevo<br>Bosna i Hercegovina</p>
             </div>
-        </footer>
-    </body>
-<script src="revis.js"></script>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">📞</div>
+            <div>
+              <h4>Telefon</h4>
+              <p>+387 33 123 456</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✉️</div>
+            <div>
+              <h4>Email</h4>
+              <p>info@reviform.ba</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">🕒</div>
+            <div>
+              <h4>Radno Vrijeme</h4>
+              <p>Ponedjeljak - Petak: 08:00 - 16:00<br>Subota - Nedjelja: Zatvoreno</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-form-container">
+          <h3>Pošaljite nam poruku</h3>
+          <form id="contactForm" class="contact-form">
+            <div class="form-group">
+              <label for="name">Ime i Prezime *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Telefon</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+            <div class="form-group">
+              <label for="message">Poruka *</label>
+              <textarea id="message" name="message" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="submit-button">Pošalji Poruku</button>
+          </form>
+          <div id="formMessage" class="form-message"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Reviform</h4>
+          <p>Profesionalne revizorske usluge za vaše poslovanje</p>
+        </div>
+        <div class="footer-section">
+          <h4>Navigacija</h4>
+          <nav class="footer-nav">
+            <a href="#pocetna">Početna</a>
+            <a href="#o-nama">O Nama</a>
+            <a href="#ciljevi-misija">Ciljevi i Misija</a>
+            <a href="#kontakt">Kontakt</a>
+          </nav>
+        </div>
+        <div class="footer-section">
+          <h4>Kontakt</h4>
+          <p>dzoke mazalica 1, Sarajevo 71000</p>
+          <p>Tel: +387 62 335 496</p>
+          <p>Email: reviks@gmail.com.ba</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Reviform. Sva prava zadržana.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script crossorigin="anonymous" src="//unpkg.com/same-runtime/dist/index.global.js"></script>
+  <script src="reviks.js"></script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>

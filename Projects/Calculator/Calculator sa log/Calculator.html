@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the encode calculator</title>
+    <h1 onclick="window.location.href='www.encode.ba'">The unconventional calculator</h1>
+</head>
+  <body>
+    <section id="calculator">
+  <!-- User input -->
+  <input type="number" id="input-number" value="0"/>
+  <!-- Calculation actions -->
+  <div id="calc-actions">
+    <button type="button" id="btn-add">+</button>
+    <button type="button" id="btn-subtract">-</button>
+    <button type="button" id="btn-multiply">*</button>
+    <button type="button" id="btn-divide">/</button>
+    <button type="button" id="btn-log">log</button>
+    <button type="button" id="btn-clear">C</button>
+  </div>
+</section>
+
+<!-- Result output -->
+<section id="results">
+  <h2 id="current-calculation">0</h2>
+  <h2>Result: <span id="current-result">0</span></h2>
+</section>
+  </body>
+  <script src="Calculator.js"></script>
+</html>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #947474;
+        color: #333;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        cursor: pointer;
+    }
+
+    #calculator {
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        width: 250px;
+        height: 200px;
+    }
+
+    #input-number {
+        width: 80%;
+        padding: 10px;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    #calc-actions button {
+        padding: 10px 15px;
+        margin: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    #btn-log {
+        background-color: #228d27;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+
+    #btn-clear {
+        background-color: #e74c3c;
+        color: rgb(196, 194, 194);
+        border: none;
+        border-radius: 5px;
+    }
+
+    #results {
+        margin-top: 20px;
+    }
+</style>

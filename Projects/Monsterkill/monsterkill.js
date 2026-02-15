@@ -24,6 +24,7 @@ function updateHealthBars() {
     monsterHealthBar.style.width = monsterHealth + "%";
     playerHealthBar.style.width = playerHealth + "%";
 }           
+
 function checkGameOver() {
     if (monsterHealth <= 0 && playerHealth <= 0) {
         alert("It's a draw!");

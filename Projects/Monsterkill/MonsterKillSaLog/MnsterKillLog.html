@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monster Killer JS Game</title>
+    <link rel="stylesheet" href="assets/styles/app.css" />
+    
+    <!--<script src="assets/scripts/vendor.js" defer></script>-->
+  </head>
+  <body>
+    <section class="health-container" id="health-levels">
+      <h2>MONSTER HEALTH</h2>
+      <progress class= "health-bar" id="monster-health" max="100" value="100">100%</progress>
+      <h2>PLAYER HEALTH<span id="bonus-life">1</span></h2>
+      <progress class= "health-bar" id="player-health" max="100" value="100">100%</progress>
+    </section>
+    <section id="controls">
+      <button id="attack-btn">ATTACK</button>
+      <button id="strong-attack-btn">STRONG ATTACK</button>
+      <button id="heal-btn">HEAL</button>
+      <button id="log-btn">SHOW LOG</button>
+    </section>
+  </body>
+  <script src="MnsterKillLog.js"></script>
+  <!--<script src="mnsterKillLogGPT.js "></script>-->
+</html>
+<style>
+    body {
+        background-color: rgb(137, 34, 34);
+        color: white;
+        text-align: center;
+        font-family: Arial, sans-serif;
+    }
+
+    #health-levels {
+        margin: 20px;
+    }
+
+    progress {
+        width: 80%;
+        height: 30px;
+        margin: 10px 0;
+        direction: rtl;     
+    }
+    
+    .bar-container {
+      width: 80%;
+      height: 30px;
+      background: #333;
+      margin: 10px auto;
+      overflow: hidden;
+      border-radius: 5px;
+    }
+
+    #controls button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+    }
+    #Yes {
+        padding: 10px 20px;
+        font-size: 1.2em;
+    }
+
+
+</style>
