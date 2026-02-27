@@ -122,6 +122,8 @@ healBtn.addEventListener("click", function () {
   const monsterDamage = Math.floor(Math.random() * 15) + 5;
 
   playerHealth += healValue;
+  playerHealth -= monsterDamage;
+  
   if (playerHealth > maxPlayerHealth) {
     playerHealth = maxPlayerHealth;
   }
