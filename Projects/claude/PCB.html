@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electronics 101</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #111318;
+    --border: #1e2330;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --accent4: #c77dff;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --warn: #ffd166;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 48px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 12px;
+    font-weight: 400;
+  }
+
+  /* Nav tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 3px;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--accent); }
+  .tab.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Sections */
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+  .card.orange::before { background: var(--accent2); }
+  .card.green::before { background: var(--accent3); }
+  .card.purple::before { background: var(--accent4); }
+  .card.yellow::before { background: var(--warn); }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+  .card p { color: #a0aec0; line-height: 1.7; font-size: 0.95rem; margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Formula box */
+  .formula {
+    background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--accent);
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .formula.orange { background: rgba(255,107,53,0.07); border-color: rgba(255,107,53,0.3); color: var(--accent2); }
+  .formula.green { background: rgba(127,255,107,0.07); border-color: rgba(127,255,107,0.3); color: var(--accent3); }
+
+  /* Ohm's Law Interactive */
+  .ohm-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+  @media (max-width: 600px) { .ohm-grid { grid-template-columns: 1fr; } }
+  .ohm-input-group { display: flex; flex-direction: column; gap: 6px; }
+  .ohm-input-group label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .ohm-input-group input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .ohm-input-group input:focus { border-color: var(--accent); }
+  .ohm-input-group input[readonly] {
+    color: var(--accent);
+    border-color: rgba(0,229,255,0.3);
+    background: rgba(0,229,255,0.05);
+  }
+  .calc-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 12px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-top: 12px;
+  }
+  .calc-btn:hover { background: #33eaff; transform: translateY(-1px); }
+
+  /* Component grid */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+  .comp-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
+  .comp-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .comp-symbol {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .comp-name {
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+  .comp-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+  .comp-unit {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  /* Schematic legend */
+  .schematic-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  .schematic-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .schematic-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(30,35,48,0.5);
+    font-size: 0.88rem;
+    color: #a0aec0;
+    vertical-align: middle;
+  }
+  .schematic-table tr:hover td { background: rgba(0,229,255,0.03); }
+  .sym-cell {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.2rem;
+    text-align: center;
+    color: var(--accent);
+    width: 60px;
+  }
+
+  /* SVG circuit diagram */
+  .circuit-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-top: 16px;
+    overflow-x: auto;
+  }
+  svg text { font-family: 'Space Mono', monospace; }
+
+  /* Power section */
+  .power-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .power-badge {
+    background: rgba(255,209,102,0.08);
+    border: 1px solid rgba(255,209,102,0.25);
+    color: var(--warn);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+  .tip-box {
+    background: rgba(127,255,107,0.05);
+    border-left: 3px solid var(--accent3);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 14px 0;
+    font-size: 0.88rem;
+    color: #a0aec0;
+    line-height: 1.6;
+  }
+  .tip-box strong { color: var(--accent3); }
+
+  .warn-box {
+    background: rgba(255,107,53,0.05);
+    border-left: 3px solid var(--accent2);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 14px 0;
+    font-size: 0.88rem;
+    color: #a0aec0;
+    line-height: 1.6;
+  }
+  .warn-box strong { color: var(--accent2); }
+
+  /* Triangle of Ohm's law */
+  .ohm-triangle {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  /* Signal flow diagram */
+  .signal-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 20px 0;
+    overflow-x: auto;
+    padding: 8px 0;
+  }
+  .sig-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    text-align: center;
+    min-width: 90px;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .sig-block:hover { border-color: var(--accent); }
+  .sig-block .sig-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .sig-block .sig-label { font-size: 0.72rem; color: var(--muted); font-family: 'Space Mono', monospace; letter-spacing: 0.5px; }
+  .sig-arrow {
+    color: var(--accent);
+    font-size: 1.2rem;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+
+  h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 20px; }
+  h3 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+  footer {
+    text-align: center;
+    padding: 40px 0 24px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-tag">// Module 01 — Foundations</div>
+    <h1>Electronics<br><span>101</span></h1>
+    <p class="subtitle">Voltage · Current · Resistance · Components · Schematics · Power</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" onclick="showSection('ohm')">⚡ Ohm's Law</button>
+    <button class="tab" onclick="showSection('components')">🔧 Components</button>
+    <button class="tab" onclick="showSection('schematics')">📐 Schematics</button>
+    <button class="tab" onclick="showSection('power')">🔋 Power & Signals</button>
+  </nav>
+
+  <!-- SECTION 1: OHM'S LAW -->
+  <div id="ohm" class="section active">
+    <h2>Voltage, Current & Resistance</h2>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">💡</span> The Water Analogy</div>
+      <p>Electricity is easiest to understand through water. Imagine a pipe with water flowing through it:</p>
+      <div class="two-col" style="margin-top:14px;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px;">
+          <div style="font-family:'Space Mono',monospace;color:var(--accent);font-size:11px;letter-spacing:2px;margin-bottom:8px;">VOLTAGE (V)</div>
+          <p style="margin:0;">Water <strong style="color:var(--text)">pressure</strong> in the pipe. It's the "push" that drives current. Measured in <strong style="color:var(--accent)">Volts (V)</strong>.</p>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px;">
+          <div style="font-family:'Space Mono',monospace;color:var(--accent2);font-size:11px;letter-spacing:2px;margin-bottom:8px;">CURRENT (I)</div>
+          <p style="margin:0;">The <strong style="color:var(--text)">flow rate</strong> of water. How much charge moves per second. Measured in <strong style="color:var(--accent2)">Amperes (A)</strong>.</p>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px;">
+          <div style="font-family:'Space Mono',monospace;color:var(--accent3);font-size:11px;letter-spacing:2px;margin-bottom:8px;">RESISTANCE (R)</div>
+          <p style="margin:0;">The <strong style="color:var(--text)">pipe width</strong> — narrow pipe = high resistance. Opposes current flow. Measured in <strong style="color:var(--accent3)">Ohms (Ω)</strong>.</p>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:16px;">
+          <div style="font-family:'Space Mono',monospace;color:var(--warn);font-size:11px;letter-spacing:2px;margin-bottom:8px;">POWER (P)</div>
+          <p style="margin:0;">Energy used per second — voltage × current. Like how <strong style="color:var(--text)">fast + forceful</strong> the water is. Measured in <strong style="color:var(--warn)">Watts (W)</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📐</span> Ohm's Law</div>
+      <p>The single most important formula in electronics. If you know any two values, you can calculate the third.</p>
+      <div class="formula">V = I × R</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="formula" style="font-size:0.9rem;">I = V ÷ R</div>
+        <div class="formula orange" style="font-size:0.9rem;">R = V ÷ I</div>
+        <div class="formula green" style="font-size:0.9rem;">P = V × I</div>
+      </div>
+      <p><strong style="color:var(--text)">Memory trick:</strong> Cover the letter you want to find in the triangle V/IR — the remaining letters show the formula.</p>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><span class="icon">🧮</span> Live Calculator</div>
+      <p>Enter any two known values — the third will be calculated automatically.</p>
+      <div class="ohm-grid">
+        <div class="ohm-input-group">
+          <label>Voltage (V) — Volts</label>
+          <input type="number" id="volt" placeholder="e.g. 9" oninput="calcOhm('V')">
+        </div>
+        <div class="ohm-input-group">
+          <label>Current (I) — Amps</label>
+          <input type="number" id="curr" placeholder="e.g. 0.02" oninput="calcOhm('I')">
+        </div>
+        <div class="ohm-input-group">
+          <label>Resistance (R) — Ohms</label>
+          <input type="number" id="res" placeholder="e.g. 470" oninput="calcOhm('R')">
+        </div>
+      </div>
+      <div id="ohm-result" style="font-family:'Space Mono',monospace;color:var(--accent3);margin-top:12px;font-size:0.9rem;min-height:24px;"></div>
+      <div id="power-result" style="font-family:'Space Mono',monospace;color:var(--warn);font-size:0.85rem;margin-top:4px;min-height:20px;"></div>
+      <button class="calc-btn" onclick="clearOhm()">Clear</button>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><span class="icon">🔄</span> Series vs. Parallel Circuits</div>
+      <div class="two-col">
+        <div>
+          <h3 style="color:var(--accent2);">Series</h3>
+          <p>Components connected end-to-end in a single loop. Current is the same everywhere. Voltages add up. Total resistance = R1 + R2 + ...</p>
+          <div class="formula orange" style="font-size:0.85rem;">R_total = R1 + R2</div>
+        </div>
+        <div>
+          <h3 style="color:var(--accent);">Parallel</h3>
+          <p>Components share the same two endpoints. Voltage is the same across each. Currents add up. Total resistance is less than the smallest.</p>
+          <div class="formula" style="font-size:0.85rem;">1/R = 1/R1 + 1/R2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: COMPONENTS -->
+  <div id="components" class="section">
+    <h2>How Components Work</h2>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🔧</span> Passive Components</div>
+      <p>These components don't amplify or switch — they store, limit, or block energy.</p>
+      <div class="comp-grid">
+        <div class="comp-card">
+          <span class="comp-symbol">⬛</span>
+          <div class="comp-name">Resistor</div>
+          <div class="comp-desc">Limits current flow. Color bands encode resistance value. Used for voltage dividers, LED current limiting, pull-up/down.</div>
+          <span class="comp-unit">Ω — Ohms</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">⊣⊢</span>
+          <div class="comp-name">Capacitor</div>
+          <div class="comp-desc">Stores charge like a tiny rechargeable battery. Blocks DC, passes AC. Used for filtering, timing, decoupling noise.</div>
+          <span class="comp-unit">F — Farads</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">〰️</span>
+          <div class="comp-name">Inductor</div>
+          <div class="comp-desc">Stores energy in a magnetic field. Resists changes in current. Used in filters, power supplies, RF circuits.</div>
+          <span class="comp-unit">H — Henrys</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">🌀</span>
+          <div class="comp-name">Transformer</div>
+          <div class="comp-desc">Steps voltage up or down using magnetic induction. Works with AC only. Found in chargers and power adapters.</div>
+          <span class="comp-unit">Turns ratio</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><span class="icon">💡</span> Semiconductors</div>
+      <p>Materials that can conduct or insulate depending on conditions. The foundation of all modern electronics.</p>
+      <div class="comp-grid">
+        <div class="comp-card">
+          <span class="comp-symbol">→|</span>
+          <div class="comp-name">Diode</div>
+          <div class="comp-desc">One-way current valve. Current flows only from Anode (+) to Cathode (−). Used for rectification, protection, signal clamping.</div>
+          <span class="comp-unit">0.7V forward drop</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">💡</span>
+          <div class="comp-name">LED</div>
+          <div class="comp-desc">Light-Emitting Diode — emits light when current flows. Needs a series resistor to limit current. Typical: 20mA, 2–3V drop.</div>
+          <span class="comp-unit">R = (V-Vf) / I</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">⤳</span>
+          <div class="comp-name">Transistor (BJT)</div>
+          <div class="comp-desc">Acts as amplifier or electronic switch. A small base current controls a larger collector current. NPN & PNP types.</div>
+          <span class="comp-unit">β = Ic / Ib</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">⬡</span>
+          <div class="comp-name">MOSFET</div>
+          <div class="comp-desc">Voltage-controlled switch. Gate voltage controls current from Drain to Source. Extremely efficient, used in power circuits & CPUs.</div>
+          <span class="comp-unit">Vgs threshold</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">📦</span>
+          <div class="comp-name">IC (Chip)</div>
+          <div class="comp-desc">Integrated Circuit — thousands to billions of transistors on one chip. Op-amps, microcontrollers, timers, logic gates.</div>
+          <span class="comp-unit">Many pins / functions</span>
+        </div>
+        <div class="comp-card">
+          <span class="comp-symbol">⚡</span>
+          <div class="comp-name">Zener Diode</div>
+          <div class="comp-desc">Like a diode but deliberately allows reverse current at a specific "breakdown" voltage. Used for voltage regulation.</div>
+          <span class="comp-unit">Vz — Zener voltage</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><span class="icon">💡</span> LED Resistor Calculator</div>
+      <p>Every LED needs a series resistor. Enter your supply voltage and LED specs to find the right resistor.</p>
+      <div class="ohm-grid">
+        <div class="ohm-input-group">
+          <label>Supply Voltage (Vs)</label>
+          <input type="number" id="led-vs" value="5" placeholder="e.g. 5">
+        </div>
+        <div class="ohm-input-group">
+          <label>LED Forward Voltage (Vf)</label>
+          <input type="number" id="led-vf" value="2.0" placeholder="e.g. 2.0" step="0.1">
+        </div>
+        <div class="ohm-input-group">
+          <label>LED Current (mA)</label>
+          <input type="number" id="led-i" value="20" placeholder="e.g. 20">
+        </div>
+      </div>
+      <button class="calc-btn" style="background:var(--accent2)" onclick="calcLED()">Calculate Resistor</button>
+      <div id="led-result" style="font-family:'Space Mono',monospace;color:var(--warn);margin-top:12px;font-size:0.9rem;min-height:40px;"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: SCHEMATICS -->
+  <div id="schematics" class="section">
+    <h2>Reading Circuit Diagrams</h2>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📐</span> Common Schematic Symbols</div>
+      <p>Schematics are the "language" of electronics — abstract symbols connected by lines representing wires.</p>
+      <table class="schematic-table">
+        <thead>
+          <tr><th>Symbol</th><th>Component</th><th>What it means in a circuit</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="sym-cell">—⬛—</td><td>Resistor</td><td>Limits current; value in Ohms labeled next to it</td></tr>
+          <tr><td class="sym-cell">—⊣⊢—</td><td>Capacitor</td><td>Stores charge; two parallel lines (polarized = one curved)</td></tr>
+          <tr><td class="sym-cell">→|—</td><td>Diode</td><td>Triangle pointing in direction of current flow; bar = cathode</td></tr>
+          <tr><td class="sym-cell">⊕</td><td>Junction/Node</td><td>Wires are electrically connected here (dot = yes, cross = no)</td></tr>
+          <tr><td class="sym-cell">⏚</td><td>Ground (GND)</td><td>Reference point (0V). All grounds are connected.</td></tr>
+          <tr><td class="sym-cell">+V–</td><td>Battery/Supply</td><td>Long line = +, short line = −; voltage labeled</td></tr>
+          <tr><td class="sym-cell">○/</td><td>Switch</td><td>Open = circuit broken; closed = current can flow</td></tr>
+          <tr><td class="sym-cell">💡</td><td>LED</td><td>Diode symbol with arrows showing emitted light</td></tr>
+          <tr><td class="sym-cell">△⊳</td><td>Transistor (NPN)</td><td>Three terminals: Base (B), Collector (C), Emitter (E)</td></tr>
+          <tr><td class="sym-cell">◁△</td><td>Op-Amp</td><td>Triangle with + and − inputs, one output. Amplifies voltage difference.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><span class="icon">🔍</span> How to Read a Schematic — Step by Step</div>
+      <div style="counter-reset:step;">
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <div style="background:var(--accent3);color:var(--bg);font-family:'Space Mono',monospace;font-weight:700;font-size:0.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+          <div><strong style="color:var(--text);">Find the power rails first.</strong><p style="margin:4px 0 0;font-size:0.88rem;color:var(--muted);">Identify VCC/VDD (positive supply) at the top and GND at the bottom. These are the "rivers" everything connects to.</p></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <div style="background:var(--accent3);color:var(--bg);font-family:'Space Mono',monospace;font-weight:700;font-size:0.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+          <div><strong style="color:var(--text);">Trace the main signal path.</strong><p style="margin:4px 0 0;font-size:0.88rem;color:var(--muted);">Follow the circuit from input to output — left to right is conventional. Follow the lines connecting components.</p></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <div style="background:var(--accent3);color:var(--bg);font-family:'Space Mono',monospace;font-weight:700;font-size:0.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+          <div><strong style="color:var(--text);">Look for dots at intersections.</strong><p style="margin:4px 0 0;font-size:0.88rem;color:var(--muted);">A dot means two wires connect. No dot means they cross but don't connect. This is critical!</p></div>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <div style="background:var(--accent3);color:var(--bg);font-family:'Space Mono',monospace;font-weight:700;font-size:0.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+          <div><strong style="color:var(--text);">Read component labels.</strong><p style="margin:4px 0 0;font-size:0.88rem;color:var(--muted);">R1 = first resistor, C1 = first capacitor, U1 = IC, Q1 = transistor. Values are labeled beside each component.</p></div>
+        </div>
+        <div style="display:flex;gap:14px;">
+          <div style="background:var(--accent3);color:var(--bg);font-family:'Space Mono',monospace;font-weight:700;font-size:0.85rem;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+          <div><strong style="color:var(--text);">Identify blocks/sub-circuits.</strong><p style="margin:4px 0 0;font-size:0.88rem;color:var(--muted);">Complex schematics are made of familiar sub-circuits: voltage dividers, filters, amplifiers. Learn these building blocks.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🖼️</span> Example: LED Circuit Schematic</div>
+      <p>A simple LED circuit with current-limiting resistor connected to a 5V supply:</p>
+      <div class="circuit-wrap">
+        <svg viewBox="0 0 500 180" width="100%" height="180" style="display:block;">
+          <!-- Power rail label -->
+          <text x="20" y="20" fill="#00e5ff" font-size="11" letter-spacing="1">+5V</text>
+          <!-- Top wire -->
+          <line x1="20" y1="30" x2="20" y2="60" stroke="#00e5ff" stroke-width="1.5"/>
+          <line x1="20" y1="60" x2="100" y2="60" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- Resistor (R1) -->
+          <rect x="100" y="48" width="60" height="24" rx="3" fill="none" stroke="#ff6b35" stroke-width="1.5"/>
+          <text x="116" y="64" fill="#ff6b35" font-size="11">R1</text>
+          <text x="104" y="44" fill="#6b7280" font-size="9">470Ω</text>
+          <line x1="160" y1="60" x2="220" y2="60" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- LED symbol -->
+          <polygon points="220,48 220,72 244,60" fill="none" stroke="#ffd166" stroke-width="1.5"/>
+          <line x1="244" y1="48" x2="244" y2="72" stroke="#ffd166" stroke-width="1.5"/>
+          <!-- LED light rays -->
+          <line x1="248" y1="48" x2="256" y2="40" stroke="#ffd166" stroke-width="1.2" stroke-dasharray="2,2"/>
+          <line x1="252" y1="54" x2="262" y2="48" stroke="#ffd166" stroke-width="1.2" stroke-dasharray="2,2"/>
+          <text x="222" y="88" fill="#ffd166" font-size="11">LED</text>
+          <text x="214" y="44" fill="#6b7280" font-size="9">D1</text>
+          <!-- Wire after LED -->
+          <line x1="244" y1="60" x2="340" y2="60" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- Down to GND -->
+          <line x1="340" y1="60" x2="340" y2="140" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- GND symbol -->
+          <line x1="315" y1="140" x2="365" y2="140" stroke="#7fff6b" stroke-width="2"/>
+          <line x1="322" y1="148" x2="358" y2="148" stroke="#7fff6b" stroke-width="1.5"/>
+          <line x1="330" y1="156" x2="350" y2="156" stroke="#7fff6b" stroke-width="1"/>
+          <text x="328" y="172" fill="#7fff6b" font-size="11">GND</text>
+          <!-- Battery on left -->
+          <line x1="20" y1="140" x2="20" y2="110" stroke="#00e5ff" stroke-width="1.5"/>
+          <line x1="10" y1="110" x2="30" y2="110" stroke="#00e5ff" stroke-width="2"/>
+          <text x="32" y="114" fill="#6b7280" font-size="9">+</text>
+          <line x1="12" y1="120" x2="28" y2="120" stroke="#00e5ff" stroke-width="1"/>
+          <text x="32" y="124" fill="#6b7280" font-size="9">−</text>
+          <text x="2" y="138" fill="#6b7280" font-size="9">5V</text>
+          <line x1="20" y1="120" x2="20" y2="140" stroke="#00e5ff" stroke-width="1.5"/>
+          <line x1="20" y1="140" x2="315" y2="140" stroke="#00e5ff" stroke-width="1.5"/>
+          <!-- Annotations -->
+          <text x="380" y="65" fill="#6b7280" font-size="10">← 20mA flows</text>
+          <text x="380" y="80" fill="#6b7280" font-size="10">through circuit</text>
+        </svg>
+      </div>
+      <div class="tip-box">
+        <strong>Reading this schematic:</strong> Current flows from +5V → through R1 (drops most voltage, limits current) → through the LED (emits light, drops ~2V) → to GND. The resistor protects the LED from burning out.
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: POWER & SIGNALS -->
+  <div id="power" class="section">
+    <h2>Power Requirements & Signal Flow</h2>
+
+    <div class="card yellow">
+      <div class="card-title"><span class="icon">🔋</span> Common Voltage Standards</div>
+      <p>Different systems operate at different voltages. Mixing them up can destroy components.</p>
+      <div class="power-row">
+        <span class="power-badge">1.8V — Modern MCUs</span>
+        <span class="power-badge">3.3V — Raspberry Pi, ESP32</span>
+        <span class="power-badge">5V — Arduino, USB, Classic TTL</span>
+        <span class="power-badge">9V — Common batteries</span>
+        <span class="power-badge">12V — Car, LED strips</span>
+        <span class="power-badge">24V — Industrial</span>
+        <span class="power-badge">120/240V AC — Mains power</span>
+      </div>
+      <div class="warn-box">
+        <strong>⚠️ Logic level warning:</strong> A 5V Arduino sending signals to a 3.3V device (like ESP32) will damage it over time. Always use a logic level shifter or voltage divider when crossing voltage domains.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Signal Flow — How Data Moves</div>
+      <p>In electronic systems, signals travel from source to load through a chain of processing stages:</p>
+      <div class="signal-flow">
+        <div class="sig-block">
+          <div class="sig-icon">🌡️</div>
+          <div class="sig-label">SENSOR<br>Input</div>
+        </div>
+        <div class="sig-arrow">→</div>
+        <div class="sig-block">
+          <div class="sig-icon">📡</div>
+          <div class="sig-label">ANALOG<br>Signal</div>
+        </div>
+        <div class="sig-arrow">→</div>
+        <div class="sig-block">
+          <div class="sig-icon">🔊</div>
+          <div class="sig-label">AMPLIFY<br>Op-Amp</div>
+        </div>
+        <div class="sig-arrow">→</div>
+        <div class="sig-block">
+          <div class="sig-icon">🔢</div>
+          <div class="sig-label">ADC<br>Digitize</div>
+        </div>
+        <div class="sig-arrow">→</div>
+        <div class="sig-block">
+          <div class="sig-icon">🧠</div>
+          <div class="sig-label">MCU<br>Process</div>
+        </div>
+        <div class="sig-arrow">→</div>
+        <div class="sig-block">
+          <div class="sig-icon">🔌</div>
+          <div class="sig-label">OUTPUT<br>Load</div>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>Example:</strong> A temperature sensor outputs 0–3.3V analog. An op-amp amplifies noise out. An ADC converts it to digital numbers. A microcontroller reads it and turns on a fan (output load).
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card orange">
+        <div class="card-title"><span class="icon">〰️</span> AC vs DC</div>
+        <p><strong style="color:var(--accent2);">DC (Direct Current)</strong> — flows in one direction. Batteries, USB, most electronics run on DC.</p>
+        <p><strong style="color:var(--accent);">AC (Alternating Current)</strong> — reverses direction periodically. Mains power (50/60Hz). More efficient to transmit over distance.</p>
+        <div class="formula orange" style="font-size:0.85rem;">AC → Rectify → Filter → DC</div>
+      </div>
+      <div class="card purple">
+        <div class="card-title"><span class="icon">📦</span> Decoupling Capacitors</div>
+        <p>Every IC needs a small capacitor (typically 100nF) between its power pin and GND, placed as close as possible.</p>
+        <p>This "decoupling cap" absorbs sudden current spikes and prevents voltage fluctuations from corrupting digital logic — often called <strong style="color:var(--accent4);">bypass capacitors</strong>.</p>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><span class="icon">⚡</span> Power Budget Calculator</div>
+      <p>Add up how much current your components need to size your power supply correctly.</p>
+      <div id="power-list" style="margin-bottom:12px;"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+        <input type="text" id="p-name" placeholder="Component name" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Space Mono',monospace;font-size:12px;border-radius:4px;flex:1;min-width:120px;outline:none;">
+        <input type="number" id="p-ma" placeholder="mA" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Space Mono',monospace;font-size:12px;border-radius:4px;width:80px;outline:none;">
+        <input type="number" id="p-count" placeholder="Qty" value="1" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;font-family:'Space Mono',monospace;font-size:12px;border-radius:4px;width:70px;outline:none;">
+        <button class="calc-btn" style="background:var(--accent3);color:var(--bg);" onclick="addPower()">+ Add</button>
+      </div>
+      <div id="power-total" style="font-family:'Space Mono',monospace;color:var(--accent3);font-size:0.9rem;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🛡️</span> Protection Essentials</div>
+      <div class="two-col">
+        <div>
+          <h3>Fuses & Polyfuses</h3>
+          <p>Protect against overcurrent. A fuse blows (opens circuit) when current exceeds its rated value. Always include in power lines.</p>
+        </div>
+        <div>
+          <h3>Flyback Diodes</h3>
+          <p>Motors and relays are inductors — they generate a reverse voltage spike when switched off. A diode placed in reverse across them absorbs this spike.</p>
+        </div>
+        <div>
+          <h3>ESD Protection</h3>
+          <p>Static electricity can destroy ICs. Use ESD-safe handling, ground wristbands, and TVS diodes on external connectors.</p>
+        </div>
+        <div>
+          <h3>Current Limiting</h3>
+          <p>Always limit current to LEDs, sensors, and GPIO pins. Exceeding max current ratings permanently damages semiconductors.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>ELECTRONICS 101 — Built for makers & learners — Voltage, Current, Resistance, Components, Schematics, Power</footer>
+</div>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function calcOhm(changed) {
+    const v = parseFloat(document.getElementById('volt').value);
+    const i = parseFloat(document.getElementById('curr').value);
+    const r = parseFloat(document.getElementById('res').value);
+    let result = '', power = '';
+
+    if (changed === 'V' || changed === 'I') {
+      if (!isNaN(v) && !isNaN(i) && !document.getElementById('res').value) {
+        document.getElementById('res').value = (v / i).toFixed(2);
+        result = `R = ${v}V ÷ ${i}A = ${(v/i).toFixed(2)} Ω`;
+        power = `P = ${v}V × ${i}A = ${(v*i).toFixed(3)} W`;
+      }
+    }
+    if (changed === 'V' || changed === 'R') {
+      if (!isNaN(v) && !isNaN(r) && !document.getElementById('curr').value) {
+        document.getElementById('curr').value = (v / r).toFixed(4);
+        result = `I = ${v}V ÷ ${r}Ω = ${(v/r).toFixed(4)} A`;
+        power = `P = ${v}V × ${(v/r).toFixed(4)}A = ${(v*v/r).toFixed(3)} W`;
+      }
+    }
+    if (changed === 'I' || changed === 'R') {
+      if (!isNaN(i) && !isNaN(r) && !document.getElementById('volt').value) {
+        document.getElementById('volt').value = (i * r).toFixed(3);
+        result = `V = ${i}A × ${r}Ω = ${(i*r).toFixed(3)} V`;
+        power = `P = ${(i*r).toFixed(3)}V × ${i}A = ${(i*r*i).toFixed(4)} W`;
+      }
+    }
+    if (!isNaN(v) && !isNaN(i) && !isNaN(r)) {
+      const calcV = i * r;
+      if (Math.abs(calcV - v) < 0.01) {
+        result = `✓ Valid! V=${v}V, I=${i}A, R=${r}Ω`;
+        power = `P = ${(v*i).toFixed(3)} W`;
+      } else {
+        result = `⚠ Values don't satisfy V = I × R`;
+      }
+    }
+    document.getElementById('ohm-result').textContent = result;
+    document.getElementById('power-result').textContent = power;
+  }
+
+  function clearOhm() {
+    ['volt','curr','res'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('ohm-result').textContent = '';
+    document.getElementById('power-result').textContent = '';
+  }
+
+  function calcLED() {
+    const vs = parseFloat(document.getElementById('led-vs').value);
+    const vf = parseFloat(document.getElementById('led-vf').value);
+    const i = parseFloat(document.getElementById('led-i').value) / 1000;
+    if (isNaN(vs) || isNaN(vf) || isNaN(i) || i <= 0) {
+      document.getElementById('led-result').textContent = '⚠ Please fill in all values.';
+      return;
+    }
+    const r = (vs - vf) / i;
+    const p = (vs - vf) * i * 1000;
+    const standards = [10, 22, 33, 47, 68, 100, 150, 220, 270, 330, 470, 560, 680, 1000];
+    const nearest = standards.reduce((a, b) => Math.abs(b - r) < Math.abs(a - r) ? b : a);
+    document.getElementById('led-result').textContent =
+      `Exact: ${r.toFixed(0)}Ω  →  Use standard: ${nearest}Ω\n` +
+      `Power dissipated: ${p.toFixed(1)}mW  (use ¼W resistor minimum)`;
+  }
+
+  // Power budget
+  const powerItems = [];
+  function addPower() {
+    const name = document.getElementById('p-name').value.trim();
+    const ma = parseFloat(document.getElementById('p-ma').value);
+    const qty = parseInt(document.getElementById('p-count').value) || 1;
+    if (!name || isNaN(ma)) return;
+    powerItems.push({ name, ma, qty });
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-ma').value = '';
+    document.getElementById('p-count').value = '1';
+    renderPower();
+  }
+  function renderPower() {
+    const list = document.getElementById('power-list');
+    if (!powerItems.length) { list.innerHTML = ''; document.getElementById('power-total').textContent = ''; return; }
+    list.innerHTML = powerItems.map((item, i) =>
+      `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-family:'Space Mono',monospace;font-size:11px;">
+        <span style="color:var(--text)">${item.name} ×${item.qty}</span>
+        <span style="color:var(--accent)">${item.ma * item.qty} mA</span>
+        <button onclick="removePower(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;">×</button>
+      </div>`
+    ).join('');
+    const total = powerItems.reduce((s, x) => s + x.ma * x.qty, 0);
+    const rec = Math.ceil(total * 1.25);
+    document.getElementById('power-total').textContent =
+      `Total: ${total} mA  |  Recommended supply: ${rec} mA (${rec >= 1000 ? (rec/1000).toFixed(1)+'A' : rec+'mA'}) — includes 25% safety margin`;
+  }
+  function removePower(i) { powerItems.splice(i, 1); renderPower(); }
+</script>
+</body>
+</html>

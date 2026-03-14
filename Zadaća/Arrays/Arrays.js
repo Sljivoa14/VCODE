@@ -144,6 +144,8 @@ console.log("15. Najvise cifara:", brojMax);
 
 //------------------------------------------------------------------------------
 // 16. Najveci zbir cifara
+
+//let niz = [12, -5, 7, 4, -2, 7, 123, 45];
 let maxZbir = 0;
 let brojZbir;
 for (let i = 0; i < niz.length; i++) {

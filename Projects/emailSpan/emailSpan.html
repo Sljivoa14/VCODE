@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <title>Spam Filter</title>
+</head>
+<body>
+
+<h2>SPAM Filter Test</h2>
+
+<label>From:</label><br>
+<input type="text" id="from"><br><br>
+
+<label>Subject:</label><br>
+<input type="text" id="subject"><br><br>
+
+<label>Body:</label><br>
+<textarea id="body"></textarea><br><br>
+
+<label>Links (odvojeni zarezom):</label><br>
+<input type="text" id="links"><br><br>
+
+<label>Attachments (odvojeni zarezom):</label><br>
+<input type="text" id="attachments"><br><br>
+
+<button onclick="checkEmail()">Analyze</button>
+
+<h3>Result:</h3>
+<pre id="result"></pre>
+
+<script src="emailSpan.js"></script>
+</body>
+</html>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+input, textarea {
+    width: 300px;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+
+</style>
