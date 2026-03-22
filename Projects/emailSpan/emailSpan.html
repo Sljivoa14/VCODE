@@ -33,19 +33,108 @@
 </html>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-}
-input, textarea {
-    width: 300px;
-    padding: 5px;
-    margin-bottom: 10px;
-}
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-}
-
-
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+ 
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        font-family: 'JetBrains Mono', monospace;
+        background: #0d0d10;
+        color: #c8c8d8;
+        padding: 48px 24px;
+    }
+ 
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #ff4444, #ff8800);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 28px;
+    }
+ 
+    h3 {
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #484860;
+        margin-bottom: 10px;
+        margin-top: 28px;
+    }
+ 
+    label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #606080;
+        display: inline-block;
+        margin-bottom: 6px;
+    }
+ 
+    input, textarea {
+        width: 360px;
+        background: #0d0d14;
+        border: 1px solid #1e1e2e;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #c8c8d8;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        outline: none;
+        display: block;
+        margin-bottom: 18px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        resize: vertical;
+    }
+ 
+    input:focus, textarea:focus {
+        border-color: rgba(255, 68, 68, 0.4);
+        box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.08);
+    }
+ 
+    input::placeholder, textarea::placeholder {
+        color: #2e2e4e;
+    }
+ 
+    button {
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #ff4444, #ff8800);
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+        margin-top: 4px;
+    }
+ 
+    button:hover  { opacity: 0.85; }
+    button:active { transform: scale(0.98); }
+ 
+    pre {
+        background: #13131a;
+        border: 1px solid #1e1e2e;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: #c8c8d8;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-width: 560px;
+    }
 </style>
