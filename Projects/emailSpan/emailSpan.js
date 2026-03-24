@@ -4,7 +4,8 @@ function analyzeEmail(emailObject) {
     const { from, subject, body, links, attachments } = emailObject;
 
     const susFiles = [".xyz", ".biz", ".ru", ".cn", ".click" ];
-    const susWords = ["PRIZE", "WIN", "WINNER", , "URGENT", "OFFER", "MONEY", "FREE", "CLICK", "BUY NOW", "LIMITED TIME", "ACT NOW", "RISK-FREE", "100% GUARANTEED"];
+const susWords = ["PRIZE", "WIN", "WINNER", "URGENT", "OFFER", "HURRY", "MONEY", "FREE", "CLICK", "BUY NOW", "LIMITED TIME", "ACT NOW", "RISK-FREE", "100% GUARANTEED"];
+    const susWordsLower = susWords.map(word => word.toLowerCase());
     const suspiciousExtensions = [".exe", ".bat", ".js", ".scr", "tcl", ".vbs", ".cmd", ".cm", ".pif", ".jar"];
 
     const letters = subject.replace(/[^a-zA-Z]/g, ''); //moram naucit
@@ -32,6 +33,11 @@ function analyzeEmail(emailObject) {
 // Nikad ne dođe do ".ru" ili ".xyz"
 
 
+    if(letters.length > 0 && upper.length / letters.length > 0.7){
+        score += 40;
+        reasons.push("Too many uppercase letters");
+        console.log("Uppercase ratio:", upper.length / letters.length);
+    }
     if(letters.length > 0 && upper.length / letters.length > 0.7){
         score += 40;
         reasons.push("Too many uppercase letters");
@@ -76,6 +82,12 @@ function analyzeEmail(emailObject) {
             console.log("Insecure link detected:", link);
         }
     });
+
+    if ( body.length < 20) {
+        score += 10;
+        reasons.push("Email body is too short");
+        console.log("Email body is too short");
+    }
 
     //links.forEach(x => { if (x.includes("bit.ly")) ... })
         //links.forEach(svakiLink => { if (svakiLink.includes("bit.ly")) ... })
@@ -122,7 +134,7 @@ function checkEmail() {
         alert("Please fill in the 'from', 'subject', and 'body' fields.");
         return;
     }
-    
+
 
     const analysis = analyzeEmail(emailObject);
 
