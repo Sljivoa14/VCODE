@@ -1,33 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Spam Filter</title>
 </head>
-    <body>
-        <h1>Welcome to Spam Filter Test!</h1>
-        <br><br>
-        Click <button onclick="window.location.href='index.html'">here</button> to analyze an email.
-    </body>
+<body>
+
+<h2>SPAM Filter Test</h2>
+
+<label>From:</label><br>
+<input type="text" id="from"><br><br>
+
+<label>Subject:</label><br>
+<input type="text" id="subject"><br><br>
+
+<label>Body:</label><br>
+<textarea id="body"></textarea><br><br>
+
+<label>Links (odvojeni zarezom):</label><br>
+<input type="text" id="links"><br><br>
+
+<label>Attachments (odvojeni zarezom):</label><br>
+<input type="text" id="attachments"><br><br>
+
+<button onclick="checkEmail()">Analyze</button>
+
+<h3>Result:</h3>
+<pre id="result"></pre>
+
+<script src="index.js"></script>
+</body>
 </html>
+
 <style>
     *, *::before, *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
     }
-     
-    
-    button{
-        font-family: 'JetBrains Mono', monospace;
-        background: linear-gradient(135deg, #ff4444, #ff8800);
-        color: transparent;
-        background-clip: text;
-        -webkit-background-clip: text;
-        border: none;
-        cursor: pointer;
-    }
+ 
     body {
         display: flex;
         flex-direction: column;
