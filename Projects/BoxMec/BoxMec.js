@@ -5,26 +5,26 @@ const matches = [
     {id: 4, boxer1: "Mike Tyson", boxer2: "Muhammad Ali", winner: "Muhammad Ali", method: "Decision", round: 12},
 ];
 
-function analyzeBoxingMatches(matchesArray)     {
+function runAnalysis()     {
     const results ={
-        totalMatches: matchesArray.length,
+        totalMatches: matches.length,
         topBoxer: null,
         koWins:0,
         flaggedMatches: []   // const result koji vracamo ( return) poslje analize svih meceva, a flaggedMatches je niz koji ce sadrzavati informacije o mecevima koji su problematicni (npr. onaj gdje pobjednik nije ni boxer1 ni boxer2, ili onaj gdje je metoda pobjede nepoznata, ili onaj gdje je broj rundi nevalidan)
     };
 
     const wins= {};
-    const rounds = {};
+    const roundsUsed = {};
     const methods = ["KO", "Decision", "TKO"];
 
-    matchesArray.forEach(match => {
+    matches.forEach(match => {
 
         //provjera winnera
-        if(!match.winner === match.boxer1 && !match.winner === match.boxer2){
+        if(match.winner !== match.boxer1 && match.winner !== match.boxer2){
             results.flaggedMatches.push({id: match.id, reason: "Winner not in match"});  
         }
         //nepoznat metod pobjede
-        if(methods.indexOf(match.method)    ){
+        if(!methods.includes(match.method)){
             results.flaggedMatches.push({id: match.id, reason: "Unknown method of victory"});
         }
         //broj rundi
@@ -42,23 +42,27 @@ function analyzeBoxingMatches(matchesArray)     {
 
         //pobjede 
         if(match.winner === match.boxer1 || match.winner === match.boxer2){
+            //results.flaggedMatches.push({id: match.id, reason: "Winner not in match"});
             if(!wins[match.winner]){ // ako jos nemamo pobjeda za tog boxera, postavi na 0
-                wins[match.winner] = 0; //ako jos nismo imali pobjeda za tog boxera, postavi na 0
+                wins[match.winner] = 0;
+                roundsUsed[match.winner] = 0; //ako jos nismo imali pobjeda za tog boxera, postavi na 0
             }
             wins[match.winner]++; //povecaj broj pobjeda za tog boxera
 
             /*if(!roundUsed[match.winner]){ //ako jos nemamo podatak o rundi u kojoj je taj boxer ostvario pobjedu, postavi na neki veliki broj (npr 100) da bi kasnije mogli usporediti i odabrati manji broj rundi
                 roundUsed[match.winner] = 100;
             }*/
-            roundUsed[match.winner] = match.round; //ako jos nemamo podatak o rundi u kojoj je taj boxer ostvario pobjedu, postavi na trenutnu rundu, a ako vec imamo, onda usporedi i postavi manji broj rundi (ako je trenutna runda manja od postojece runde)
+            roundsUsed[match.winner] += match.round; //ako jos nemamo podatak o rundi u kojoj je taj boxer ostvario pobjedu, postavi na trenutnu rundu,
+            //  a ako vec imamo, onda usporedi i postavi manji broj rundi (ako je trenutna runda manja od postojece runde)
         }
         
     });
 
     let top = null;
+
     //top mora biti nul na pocetku jer jos nismo obradili nijedan meč, a nakon obrade svih mečeva ćemo imati podatke o pobjedama i rundama za svakog boksera, pa ćemo moći odrediti tko je top boxer na osnovu tih podataka
     Object.keys(wins).forEach(boxer => {
-        if(!top ||wins[boxer] > wins[top]||wins[boxer] === wins[top] && roundUsed[boxer] < roundUsed[top]){
+        if(!top ||wins[boxer] > wins[top]||wins[boxer] === wins[top] && roundsUsed[boxer] < roundsUsed[top]){
 
             top = boxer; //ako nema top, ili ako trenutni boxer ima vise pobjeda od topa, ili ako imaju isti broj pobjeda ali trenutni boxer je ostvario pobjedu u manjem broju rundi, onda postavi top na trenutnog boxera
         }
@@ -73,17 +77,24 @@ function analyzeBoxingMatches(matchesArray)     {
     if(results.flaggedMatches.length === 0){
         results.ranking = Object.keys(wins)//koristimo object jer wins je objekat gdje su kljucevi imena boksera a vrijednosti broj pobjeda
         .map(name => ({name, wins: wins[name]}))//mapira kljuceve u novi niz objekata sa imenom i brojem pobjeda
-        .sort((a,b) => wins[b] - wins[a]);//sortira niz po broju pobjeda, od najvise do najmanje
+        .sort((a,b) => b.wins - a.wins);//sortira niz po broju pobjeda, od najvise do najmanje
     }
 
 
     return results;
 
+   // const result = analyzeBoxingMatches(matches);
+
 }
 
+/*document.getElementById("analyseBtn")
+    .addEventListener("click", () => {
+        runAnalysis(matches);
+    });*/
 
 
-const result = analyzeBoxingMatches(matches);//ovo nam daje objekt sa svim analizama,
+
+const result = runAnalysis(matches);//ovo nam daje objekt sa svim analizama,
 //  uključujući topBoxer, koWins, totalMatches i flaggedMatches
 
 
