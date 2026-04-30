@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCB Design — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1108;
+  --panel: #111a09;
+  --border: #2a3d1a;
+  --pcb-green: #2d5a27;
+  --trace: #4a8c42;
+  --accent: #7dff6b;
+  --amber: #e8a020;
+  --copper: #c87533;
+  --silkscreen: #e8f4e8;
+  --text: #b8d4b0;
+  --dim: #4a6644;
+  --red: #ff4444;
+  --glow: 0 0 20px rgba(125,255,107,0.3);
+  --copper-glow: 0 0 16px rgba(200,117,51,0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* PCB texture background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 25px 25px, rgba(45,90,39,0.15) 1px, transparent 0),
+    radial-gradient(circle at 75px 75px, rgba(45,90,39,0.08) 1px, transparent 0);
+  background-size: 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+header {
+  padding: 70px 24px 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pcb-header-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.header-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-tag::before {
+  content: '';
+  width: 32px; height: 2px;
+  background: var(--amber);
+}
+
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 9vw, 96px);
+  line-height: 0.9;
+  color: var(--silkscreen);
+  letter-spacing: 2px;
+}
+h1 .green { color: var(--accent); }
+
+.header-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--dim);
+  margin-top: 20px;
+  letter-spacing: 2px;
+  max-width: 500px;
+}
+
+.header-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.stat { border-left: 2px solid var(--border); padding-left: 16px; }
+.stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--accent); line-height: 1; }
+.stat-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
+
+/* ── SECTIONS ── */
+.section { margin: 64px 0; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sec-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 3px 10px;
+  letter-spacing: 1px;
+}
+.sec-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--silkscreen);
+  letter-spacing: 2px;
+}
+.sec-desc { font-size: 14px; color: var(--dim); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+/* ── PCB ANATOMY VISUAL ── */
+.pcb-visual {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.pcb-visual::before {
+  content: 'INTERACTIVE — HOVER LAYERS';
+  position: absolute;
+  top: 12px; right: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 2px;
+}
+
+.layer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media(max-width:680px){ .layer-grid { grid-template-columns: 1fr; } }
+
+.pcb-svg-wrap { display: flex; justify-content: center; padding: 20px; }
+
+.layer-list { display: flex; flex-direction: column; gap: 10px; }
+.layer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+.layer-item:hover, .layer-item.active { border-color: var(--accent); background: rgba(125,255,107,0.04); }
+.layer-color { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+.layer-name { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--silkscreen); letter-spacing: 1px; }
+.layer-desc { font-size: 12px; color: var(--dim); line-height: 1.4; margin-top: 2px; }
+.layer-item:hover .layer-desc { color: var(--text); }
+
+/* ── WORKFLOW ── */
+.workflow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0;
+  position: relative;
+}
+.flow-step {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-right: none;
+  padding: 24px 20px;
+  position: relative;
+  transition: background 0.2s;
+}
+.flow-step:last-child { border-right: 1px solid var(--border); }
+.flow-step:hover { background: rgba(125,255,107,0.04); }
+.flow-arrow {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: var(--accent);
+  clip-path: polygon(0 20%, 60% 20%, 60% 0%, 100% 50%, 60% 100%, 60% 80%, 0 80%);
+  z-index: 2;
+}
+.flow-step:last-child .flow-arrow { display: none; }
+.flow-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--border);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.flow-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.flow-desc { font-size: 12px; color: var(--dim); line-height: 1.5; }
+@media(max-width:680px){
+  .workflow { grid-template-columns: 1fr 1fr; }
+  .flow-step { border-right: 1px solid var(--border); }
+  .flow-arrow { display: none; }
+}
+
+/* ── TRACE RULES ── */
+.trace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.trace-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.trace-card:hover { border-color: var(--trace); transform: translateY(-2px); }
+.trace-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--copper);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  transform-origin: left;
+}
+.trace-card:hover::after { transform: scaleX(1); }
+.tc-icon { font-size: 28px; margin-bottom: 12px; }
+.tc-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--silkscreen);
+  margin-bottom: 8px;
+}
+.tc-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: var(--copper);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.tc-desc { font-size: 13px; color: var(--dim); }
+
+/* ── COMPONENT TYPES ── */
+.comp-tabs { display: flex; gap: 0; margin-bottom: 0; flex-wrap: wrap; }
+.comp-tab {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 12px 24px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  cursor: pointer;
+  color: var(--dim);
+  transition: all 0.2s;
+  background: var(--bg);
+  text-transform: uppercase;
+}
+.comp-tab.active { background: var(--panel); color: var(--accent); border-color: var(--accent); border-bottom: none; }
+.comp-tab:hover:not(.active) { color: var(--text); }
+
+.comp-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 32px;
+  display: none;
+}
+.comp-panel.active { display: block; }
+.comp-panel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.comp-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 18px;
+  transition: border-color 0.2s;
+}
+.comp-item:hover { border-color: var(--trace); }
+.ci-sym { font-size: 28px; margin-bottom: 8px; }
+.ci-name { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--silkscreen); letter-spacing: 1px; margin-bottom: 4px; }
+.ci-pkg { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--amber); border: 1px solid rgba(232,160,32,0.3); padding: 2px 8px; margin-bottom: 8px; }
+.ci-desc { font-size: 12px; color: var(--dim); line-height: 1.5; }
+
+/* ── DESIGN RULES ── */
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'DM Mono', monospace;
+}
+.rules-table th {
+  background: var(--pcb-green);
+  color: var(--silkscreen);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 12px 20px;
+  text-align: left;
+  border: 1px solid var(--trace);
+}
+.rules-table td {
+  padding: 12px 20px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  vertical-align: middle;
+}
+.rules-table tr:hover td { background: rgba(125,255,107,0.03); }
+.rules-table td:nth-child(2) { color: var(--copper); font-weight: 500; }
+.rules-table td:nth-child(3) { color: var(--accent); }
+.rule-tag { display: inline-block; font-size: 10px; padding: 2px 8px; border: 1px solid; }
+.tag-critical { color: var(--red); border-color: var(--red); }
+.tag-important { color: var(--amber); border-color: var(--amber); }
+.tag-good { color: var(--accent); border-color: var(--accent); }
+
+/* ── SOFTWARE ── */
+.software-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.sw-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.sw-card:hover { border-color: var(--trace); transform: translateY(-3px); }
+.sw-card.recommended::before {
+  content: 'START HERE';
+  position: absolute;
+  top: -1px; right: 16px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+}
+.sw-logo { font-size: 36px; margin-bottom: 12px; }
+.sw-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--silkscreen); letter-spacing: 1px; margin-bottom: 4px; }
+.sw-type { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--amber); letter-spacing: 2px; margin-bottom: 12px; }
+.sw-desc { font-size: 13px; color: var(--dim); line-height: 1.6; }
+.sw-features { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+.sw-feat { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--dim); border: 1px solid var(--border); padding: 2px 8px; }
+
+/* ── MISTAKES ── */
+.mistakes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.mistake-card {
+  background: var(--panel);
+  border: 1px solid rgba(255,68,68,0.2);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.mistake-card:hover { border-color: rgba(255,68,68,0.5); }
+.mistake-card::before {
+  content: '✕';
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  color: rgba(255,68,68,0.15);
+  font-size: 48px;
+  font-family: 'Bebas Neue', sans-serif;
+  line-height: 1;
+}
+.m-title { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--red); letter-spacing: 2px; margin-bottom: 8px; }
+.m-prob { font-size: 13px; color: var(--dim); margin-bottom: 12px; }
+.m-fix { font-size: 13px; color: var(--accent); border-top: 1px solid var(--border); padding-top: 10px; }
+.m-fix::before { content: '✓ FIX: '; font-family: 'DM Mono', monospace; font-size: 10px; }
+
+/* ── PCB CHECKLIST ── */
+.checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width:600px){ .checklist { grid-template-columns: 1fr; } }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+}
+.check-item.checked { border-color: rgba(125,255,107,0.3); background: rgba(125,255,107,0.04); }
+.check-box {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-size: 11px;
+}
+.check-item.checked .check-box { border-color: var(--accent); background: var(--accent); color: var(--bg); }
+.check-text { font-size: 13px; color: var(--dim); }
+.check-item.checked .check-text { color: var(--text); }
+.checklist-progress { margin-top: 16px; }
+.prog-bar { height: 4px; background: var(--border); margin-top: 8px; position: relative; }
+.prog-fill { height: 100%; background: var(--accent); transition: width 0.3s; width: 0%; }
+.prog-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); display: flex; justify-content: space-between; }
+
+/* ── ROADMAP ── */
+.roadmap { position: relative; }
+.roadmap::before {
+  content: '';
+  position: absolute;
+  left: 20px; top: 30px; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--amber), var(--copper), transparent);
+}
+.road-step { display: flex; gap: 20px; margin-bottom: 20px; position: relative; }
+.road-dot {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--accent);
+  z-index: 1;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.road-step:hover .road-dot { border-color: var(--accent); box-shadow: var(--glow); }
+.road-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px 22px;
+  flex: 1;
+  transition: border-color 0.2s;
+}
+.road-step:hover .road-content { border-color: rgba(125,255,107,0.3); }
+.road-title { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--silkscreen); letter-spacing: 2px; margin-bottom: 4px; }
+.road-desc { font-size: 13px; color: var(--dim); }
+.road-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.road-tool { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 10px; border: 1px solid var(--border); color: var(--dim); }
+
+/* fade-in */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s, transform 0.5s; }
+.fade-in.visible { opacity: 1; transform: none; }
+
+footer { text-align: center; padding: 60px 20px; border-top: 1px solid var(--border); margin-top: 80px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 2px; }
+
+/* copper trace decoration */
+.trace-deco {
+  width: 100%;
+  height: 24px;
+  margin: 8px 0;
+  position: relative;
+  overflow: hidden;
+}
+.trace-deco svg { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <svg class="pcb-header-bg" viewBox="0 0 1100 300" fill="none">
+    <!-- PCB traces as decoration -->
+    <line x1="0" y1="50" x2="200" y2="50" stroke="#4a8c42" stroke-width="3"/>
+    <line x1="200" y1="50" x2="200" y2="150" stroke="#4a8c42" stroke-width="3"/>
+    <line x1="200" y1="150" x2="500" y2="150" stroke="#4a8c42" stroke-width="3"/>
+    <circle cx="200" cy="50" r="8" fill="#c87533" stroke="#4a8c42" stroke-width="2"/>
+    <circle cx="200" cy="150" r="8" fill="#c87533" stroke="#4a8c42" stroke-width="2"/>
+    <circle cx="500" cy="150" r="12" fill="none" stroke="#4a8c42" stroke-width="2"/>
+    <circle cx="500" cy="150" r="5" fill="#c87533"/>
+    <line x1="800" y1="30" x2="1100" y2="30" stroke="#4a8c42" stroke-width="2"/>
+    <line x1="800" y1="80" x2="1100" y2="80" stroke="#4a8c42" stroke-width="2"/>
+    <line x1="900" y1="30" x2="900" y2="250" stroke="#4a8c42" stroke-width="2"/>
+    <rect x="850" y="100" width="60" height="40" fill="none" stroke="#c87533" stroke-width="2"/>
+    <rect x="700" y="200" width="80" height="60" fill="none" stroke="#4a8c42" stroke-width="2"/>
+    <line x1="700" y1="230" x2="600" y2="230" stroke="#4a8c42" stroke-width="2"/>
+    <circle cx="600" cy="230" r="6" fill="none" stroke="#c87533" stroke-width="2"/>
+    <circle cx="600" cy="230" r="2" fill="#c87533"/>
+  </svg>
+
+  <div class="container">
+    <div class="header-tag">Electronics Engineering</div>
+    <h1><span class="green">PCB</span><br>DESIGN</h1>
+    <p class="header-sub">// From schematic to manufactured board — a complete reference for robotics builders //</p>
+    <div class="header-stats">
+      <div class="stat"><div class="stat-val">6</div><div class="stat-label">Core Layers</div></div>
+      <div class="stat"><div class="stat-val">7</div><div class="stat-label">Design Steps</div></div>
+      <div class="stat"><div class="stat-val">5</div><div class="stat-label">Tools Covered</div></div>
+      <div class="stat"><div class="stat-val">∞</div><div class="stat-label">Projects Possible</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- WHAT IS A PCB -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">01</span>
+    <span class="sec-title">WHAT IS A PCB?</span>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start;">
+    <div>
+      <p style="font-size:15px; color:var(--text); margin-bottom:16px;">A <strong style="color:var(--silkscreen)">Printed Circuit Board (PCB)</strong> is a flat board made of insulating material (usually FR4 — fibreglass) with conductive copper traces etched onto it to electrically connect components.</p>
+      <p style="font-size:14px; color:var(--dim); margin-bottom:16px;">Think of it as a <strong style="color:var(--silkscreen)">permanent, miniaturized version of your breadboard</strong> — but instead of jumper wires, copper is chemically bonded to the board and etched into precise pathways.</p>
+      <p style="font-size:14px; color:var(--dim);">For robotics: PCBs let you ditch the mess of wires, make your robot more reliable, lighter, more compact, and ultimately <strong style="color:var(--accent)">professional-grade</strong>.</p>
+    </div>
+    <!-- PCB Layer SVG -->
+    <div style="background:var(--panel); border:1px solid var(--border); padding:24px;">
+      <svg viewBox="0 0 320 240" width="100%" fill="none">
+        <!-- Layer stack exploded view -->
+        <!-- Silkscreen -->
+        <rect x="30" y="20" width="260" height="22" fill="rgba(232,244,232,0.1)" stroke="#e8f4e8" stroke-width="1.5"/>
+        <text x="180" y="35" text-anchor="middle" fill="#e8f4e8" font-family="DM Mono,monospace" font-size="9">SILKSCREEN (Component labels)</text>
+        <!-- Top copper -->
+        <rect x="30" y="52" width="260" height="22" fill="rgba(200,117,51,0.15)" stroke="#c87533" stroke-width="1.5"/>
+        <text x="180" y="67" text-anchor="middle" fill="#c87533" font-family="DM Mono,monospace" font-size="9">TOP COPPER (Signal traces)</text>
+        <!-- Soldermask -->
+        <rect x="30" y="84" width="260" height="14" fill="rgba(45,90,39,0.3)" stroke="#2d5a27" stroke-width="1.5"/>
+        <text x="180" y="95" text-anchor="middle" fill="#4a8c42" font-family="DM Mono,monospace" font-size="8">SOLDER MASK (Green coating)</text>
+        <!-- Substrate FR4 -->
+        <rect x="30" y="108" width="260" height="44" fill="rgba(139,119,71,0.2)" stroke="#8b7747" stroke-width="1.5"/>
+        <text x="180" y="124" text-anchor="middle" fill="#8b7747" font-family="DM Mono,monospace" font-size="9">FR4 SUBSTRATE (Insulator)</text>
+        <text x="180" y="140" text-anchor="middle" fill="rgba(139,119,71,0.6)" font-family="DM Mono,monospace" font-size="8">1.6mm standard thickness</text>
+        <!-- Bottom soldermask -->
+        <rect x="30" y="162" width="260" height="14" fill="rgba(45,90,39,0.3)" stroke="#2d5a27" stroke-width="1.5"/>
+        <text x="180" y="173" text-anchor="middle" fill="#4a8c42" font-family="DM Mono,monospace" font-size="8">BOTTOM SOLDER MASK</text>
+        <!-- Bottom copper -->
+        <rect x="30" y="186" width="260" height="22" fill="rgba(200,117,51,0.15)" stroke="#c87533" stroke-width="1.5"/>
+        <text x="180" y="201" text-anchor="middle" fill="#c87533" font-family="DM Mono,monospace" font-size="9">BOTTOM COPPER (Ground plane)</text>
+        <!-- Via -->
+        <circle cx="90" cy="137" r="12" fill="var(--bg)" stroke="#c87533" stroke-width="2"/>
+        <circle cx="90" cy="137" r="5" fill="#c87533"/>
+        <line x1="90" y1="52" x2="90" y2="208" stroke="rgba(200,117,51,0.4)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="90" y="228" text-anchor="middle" fill="rgba(200,117,51,0.6)" font-family="DM Mono,monospace" font-size="8">VIA</text>
+        <!-- Bracket -->
+        <line x1="10" y1="20" x2="10" y2="208" stroke="var(--border)" stroke-width="1"/>
+        <line x1="10" y1="20" x2="18" y2="20" stroke="var(--border)" stroke-width="1"/>
+        <line x1="10" y1="208" x2="18" y2="208" stroke="var(--border)" stroke-width="1"/>
+        <text x="6" y="118" text-anchor="middle" fill="var(--dim)" font-family="DM Mono,monospace" font-size="8" transform="rotate(-90, 6, 118)">CROSS-SECTION</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN WORKFLOW -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">02</span>
+    <span class="sec-title">DESIGN WORKFLOW</span>
+  </div>
+  <div class="workflow">
+    <div class="flow-step">
+      <div class="flow-num">01</div>
+      <div class="flow-title">SCHEMATIC</div>
+      <div class="flow-desc">Draw the logical circuit — components and connections. No physical positions yet.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">02</div>
+      <div class="flow-title">NETLIST</div>
+      <div class="flow-desc">Export connection list from schematic to layout tool. Links symbols to footprints.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">03</div>
+      <div class="flow-title">PLACEMENT</div>
+      <div class="flow-desc">Physically place components on the board. Group by function. Minimize trace length.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">04</div>
+      <div class="flow-title">ROUTING</div>
+      <div class="flow-desc">Draw copper traces connecting all pads. Follow DRC rules. Power traces = thicker.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">05</div>
+      <div class="flow-title">GROUND POUR</div>
+      <div class="flow-desc">Fill unused space with copper connected to GND. Reduces noise, improves heat.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">06</div>
+      <div class="flow-title">DRC CHECK</div>
+      <div class="flow-desc">Design Rule Check — software validates clearances, unconnected nets, short circuits.</div>
+      <div class="flow-arrow"></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">07</div>
+      <div class="flow-title">GERBER + MFG</div>
+      <div class="flow-desc">Export Gerber files. Send to manufacturer (JLCPCB, PCBWay). Get boards in days.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACE RULES -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">03</span>
+    <span class="sec-title">TRACE RULES & SPECS</span>
+  </div>
+  <div class="trace-grid">
+    <div class="trace-card">
+      <div class="tc-icon">〰️</div>
+      <div class="tc-title">SIGNAL TRACE WIDTH</div>
+      <div class="tc-val">0.2 mm</div>
+      <div class="tc-desc">Minimum for low-current signals (SPI, I²C, GPIO). Use a trace width calculator for power.</div>
+    </div>
+    <div class="trace-card">
+      <div class="tc-icon">⚡</div>
+      <div class="tc-title">POWER TRACE WIDTH</div>
+      <div class="tc-val">0.5–2mm</div>
+      <div class="tc-desc">Wider = lower resistance = less heat. 1A needs ≈ 0.3mm on outer layer (1oz copper).</div>
+    </div>
+    <div class="trace-card">
+      <div class="tc-icon">📏</div>
+      <div class="tc-title">CLEARANCE (MIN)</div>
+      <div class="tc-val">0.2 mm</div>
+      <div class="tc-desc">Minimum gap between any two copper elements. Prevents short circuits and arcing.</div>
+    </div>
+    <div class="trace-card">
+      <div class="tc-icon">🔩</div>
+      <div class="tc-title">VIA DRILL</div>
+      <div class="tc-val">0.2–1mm</div>
+      <div class="tc-desc">Hole through board connecting layers. Smaller vias cost more. 0.3mm is common budget standard.</div>
+    </div>
+    <div class="trace-card">
+      <div class="tc-icon">🟫</div>
+      <div class="tc-title">COPPER WEIGHT</div>
+      <div class="tc-val">1 oz / ft²</div>
+      <div class="tc-desc">Standard is 1oz (35μm). 2oz for high-current boards. Heavier = more ampacity.</div>
+    </div>
+    <div class="trace-card">
+      <div class="tc-icon">📐</div>
+      <div class="tc-title">TRACE ANGLES</div>
+      <div class="tc-val">45° only</div>
+      <div class="tc-desc">Never use 90° corners — they cause signal reflections at high frequencies. Always 45° curves.</div>
+    </div>
+  </div>
+
+  <!-- Trace width table -->
+  <div style="margin-top:24px; overflow-x:auto;">
+    <table class="rules-table">
+      <tr>
+        <th>CURRENT (A)</th>
+        <th>MIN TRACE WIDTH (outer)</th>
+        <th>RECOMMENDED WIDTH</th>
+        <th>TYPICAL USE</th>
+      </tr>
+      <tr>
+        <td>0.1A</td><td>0.12mm</td><td>0.2mm</td><td>SPI, I²C, signals</td>
+      </tr>
+      <tr>
+        <td>0.5A</td><td>0.2mm</td><td>0.3mm</td><td>GPIO, sensors</td>
+      </tr>
+      <tr>
+        <td>1A</td><td>0.3mm</td><td>0.5mm</td><td>Servo power</td>
+      </tr>
+      <tr>
+        <td>2A</td><td>0.5mm</td><td>0.8mm</td><td>Small motors</td>
+      </tr>
+      <tr>
+        <td>5A</td><td>1.2mm</td><td>2.0mm</td><td>Motor drivers, power bus</td>
+      </tr>
+      <tr>
+        <td>10A+</td><td>2.5mm</td><td>4.0mm+</td><td>High-power motors</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- COMPONENT PACKAGES -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">04</span>
+    <span class="sec-title">COMPONENT PACKAGES</span>
+  </div>
+  <div class="comp-tabs">
+    <div class="comp-tab active" onclick="switchTab('smd')">SMD</div>
+    <div class="comp-tab" onclick="switchTab('thru')">THROUGH-HOLE</div>
+    <div class="comp-tab" onclick="switchTab('connectors')">CONNECTORS</div>
+  </div>
+  <div class="comp-panel active" id="tab-smd">
+    <p style="font-size:13px; color:var(--dim); margin-bottom:20px; font-family:'DM Mono',monospace;">Surface Mount Devices — soldered directly to pads on the board surface. Smaller, better for RF, cheaper in production. Harder to hand-solder.</p>
+    <div class="comp-panel-grid">
+      <div class="comp-item"><div class="ci-sym">▬</div><div class="ci-name">RESISTOR / CAPACITOR</div><span class="ci-pkg">0402 / 0603 / 0805</span><div class="ci-desc">0402 = 1mm×0.5mm (tweezers needed). 0805 is beginner-friendly. Named by size in hundredths of inches.</div></div>
+      <div class="comp-item"><div class="ci-sym">▲</div><div class="ci-name">SOT-23 TRANSISTOR</div><span class="ci-pkg">SOT-23-3</span><div class="ci-desc">Small 3-pin package. Common for MOSFETs and BJTs. Legs at 0.95mm pitch. Solderable by hand.</div></div>
+      <div class="comp-item"><div class="ci-sym">◼</div><div class="ci-name">SOIC / TSSOP IC</div><span class="ci-pkg">SOIC-8 / TSSOP-16</span><div class="ci-desc">8–16 pin ICs. 1.27mm or 0.65mm pitch. Motor drivers, op-amps, MCUs. Soldarable with flux.</div></div>
+      <div class="comp-item"><div class="ci-sym">⬛</div><div class="ci-name">QFP / QFN IC</div><span class="ci-pkg">QFP-48 / QFN-32</span><div class="ci-desc">High pin-count MCUs. QFN has exposed pad underneath (heat sink). Requires reflow oven or hot air.</div></div>
+      <div class="comp-item"><div class="ci-sym">🟫</div><div class="ci-name">INDUCTOR</div><span class="ci-pkg">1210 / 1008</span><div class="ci-desc">Used in power supplies (buck/boost converters). Larger packages handle more current.</div></div>
+      <div class="comp-item"><div class="ci-sym">💡</div><div class="ci-name">LED (SMD)</div><span class="ci-pkg">0603 / 5050</span><div class="ci-desc">0603 for indicator LEDs. 5050 (WS2812B) for addressable RGB strips and robot lighting.</div></div>
+    </div>
+  </div>
+  <div class="comp-panel" id="tab-thru">
+    <p style="font-size:13px; color:var(--dim); margin-bottom:20px; font-family:'DM Mono',monospace;">Through-hole components have leads that pass through drilled holes. Mechanically stronger, easier to hand-solder, but takes up more board space.</p>
+    <div class="comp-panel-grid">
+      <div class="comp-item"><div class="ci-sym">🟡</div><div class="ci-name">DIP IC</div><span class="ci-pkg">DIP-8 / DIP-28</span><div class="ci-desc">Classic IC package. 2.54mm pin pitch — breadboard compatible. Great for prototyping (ATmega328 = DIP-28).</div></div>
+      <div class="comp-item"><div class="ci-sym">🔵</div><div class="ci-name">ELECTROLYTIC CAP</div><span class="ci-pkg">Radial, various</span><div class="ci-desc">Larger capacitors for power filtering. Polarized — always mind the + and – pins!</div></div>
+      <div class="comp-item"><div class="ci-sym">🔴</div><div class="ci-name">LED (TH)</div><span class="ci-pkg">3mm / 5mm</span><div class="ci-desc">Standard indicator LED. Long leg = anode (+). Needs current-limiting resistor always.</div></div>
+      <div class="comp-item"><div class="ci-sym">🔌</div><div class="ci-name">BARREL JACK</div><span class="ci-pkg">DC-005 / PJ-002A</span><div class="ci-desc">Power input connector. 5.5mm OD / 2.1mm ID is standard for 9-12V robot power supplies.</div></div>
+      <div class="comp-item"><div class="ci-sym">📎</div><div class="ci-name">HEADER PINS</div><span class="ci-pkg">2.54mm pitch</span><div class="ci-desc">Male/female headers for connecting modules (Arduino shields, sensors). Essential for any robot PCB.</div></div>
+      <div class="comp-item"><div class="ci-sym">🔧</div><div class="ci-name">SCREW TERMINAL</div><span class="ci-pkg">3.5mm / 5.08mm</span><div class="ci-desc">Clamp-style connector for motor wires and power cables. Much more secure than solder for high vibration.</div></div>
+    </div>
+  </div>
+  <div class="comp-panel" id="tab-connectors">
+    <p style="font-size:13px; color:var(--dim); margin-bottom:20px; font-family:'DM Mono',monospace;">Choosing the right connector is critical for reliable robotics. Wrong connectors = loose wires at the worst moment.</p>
+    <div class="comp-panel-grid">
+      <div class="comp-item"><div class="ci-sym">🟠</div><div class="ci-name">JST-XH / PH / SH</div><span class="ci-pkg">2.54 / 2.0 / 1.0mm</span><div class="ci-desc">Keyed connectors with locking. JST-XH for battery/motors, JST-SH (Qwiic) for I²C sensors.</div></div>
+      <div class="comp-item"><div class="ci-sym">🔵</div><div class="ci-name">USB TYPE-C</div><span class="ci-pkg">SMD footprint</span><div class="ci-desc">Power + data. Standard for modern robot controllers. 5V/3A capable with proper traces.</div></div>
+      <div class="comp-item"><div class="ci-sym">⬛</div><div class="ci-name">XT30 / XT60</div><span class="ci-pkg">TH, high current</span><div class="ci-desc">LiPo battery connectors. XT30 = 30A, XT60 = 60A. Gold-plated contacts. Standard for drones.</div></div>
+      <div class="comp-item"><div class="ci-sym">🟢</div><div class="ci-name">QWIIC / STEMMA QT</div><span class="ci-pkg">JST-SH 4-pin</span><div class="ci-desc">Standardized I²C connector. Daisy-chain sensors easily. No soldering for modules.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN RULES TABLE -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">05</span>
+    <span class="sec-title">DESIGN RULES CHECKLIST</span>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="rules-table">
+      <tr>
+        <th>RULE</th>
+        <th>VALUE</th>
+        <th>JLCPCB STANDARD</th>
+        <th>PRIORITY</th>
+      </tr>
+      <tr><td>Minimum trace width</td><td>0.127mm</td><td>0.127mm</td><td><span class="rule-tag tag-critical">CRITICAL</span></td></tr>
+      <tr><td>Minimum clearance</td><td>0.127mm</td><td>0.127mm</td><td><span class="rule-tag tag-critical">CRITICAL</span></td></tr>
+      <tr><td>Min via drill</td><td>0.2mm</td><td>0.2mm</td><td><span class="rule-tag tag-critical">CRITICAL</span></td></tr>
+      <tr><td>Min annular ring</td><td>0.13mm</td><td>0.13mm</td><td><span class="rule-tag tag-important">IMPORTANT</span></td></tr>
+      <tr><td>Copper to board edge</td><td>0.3mm</td><td>0.3mm</td><td><span class="rule-tag tag-important">IMPORTANT</span></td></tr>
+      <tr><td>Silkscreen width</td><td>0.15mm min</td><td>0.15mm</td><td><span class="rule-tag tag-good">GOOD PRACTICE</span></td></tr>
+      <tr><td>Decoupling caps near IC</td><td>&lt; 3mm from IC</td><td>—</td><td><span class="rule-tag tag-important">IMPORTANT</span></td></tr>
+      <tr><td>GND copper pour</td><td>All unused space</td><td>—</td><td><span class="rule-tag tag-good">GOOD PRACTICE</span></td></tr>
+      <tr><td>No 90° trace angles</td><td>45° only</td><td>—</td><td><span class="rule-tag tag-good">GOOD PRACTICE</span></td></tr>
+      <tr><td>Test points on signals</td><td>Exposed pad 1mm+</td><td>—</td><td><span class="rule-tag tag-good">GOOD PRACTICE</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SOFTWARE -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">06</span>
+    <span class="sec-title">PCB DESIGN SOFTWARE</span>
+  </div>
+  <div class="software-grid">
+    <div class="sw-card recommended">
+      <div class="sw-logo">🟢</div>
+      <div class="sw-name">KiCad</div>
+      <div class="sw-type">FREE · OPEN SOURCE</div>
+      <div class="sw-desc">Industry-grade tool used by professionals worldwide. Complete workflow: schematic → layout → Gerber. Best community, most tutorials. Perfect for robotics.</div>
+      <div class="sw-features">
+        <span class="sw-feat">Free forever</span>
+        <span class="sw-feat">Windows/Mac/Linux</span>
+        <span class="sw-feat">3D viewer</span>
+        <span class="sw-feat">Active community</span>
+      </div>
+    </div>
+    <div class="sw-card">
+      <div class="sw-logo">🔵</div>
+      <div class="sw-name">EasyEDA</div>
+      <div class="sw-type">FREE · WEB-BASED</div>
+      <div class="sw-desc">Browser-based PCB tool tightly integrated with LCSC component library and JLCPCB manufacturing. Instant order from browser. Great for beginners.</div>
+      <div class="sw-features">
+        <span class="sw-feat">No install</span>
+        <span class="sw-feat">JLCPCB integration</span>
+        <span class="sw-feat">LCSC parts</span>
+      </div>
+    </div>
+    <div class="sw-card">
+      <div class="sw-logo">🟠</div>
+      <div class="sw-name">Altium</div>
+      <div class="sw-type">PAID · PROFESSIONAL</div>
+      <div class="sw-desc">The gold standard in industry. Complex multi-layer, high-speed design. Expensive (~$10k/yr). Learn this for a career in PCB design or aerospace robotics.</div>
+      <div class="sw-features">
+        <span class="sw-feat">Industry standard</span>
+        <span class="sw-feat">Student free trial</span>
+        <span class="sw-feat">High-speed design</span>
+      </div>
+    </div>
+    <div class="sw-card">
+      <div class="sw-logo">⚫</div>
+      <div class="sw-name">Eagle</div>
+      <div class="sw-type">PAID · AUTODESK</div>
+      <div class="sw-desc">Long-standing tool now owned by Autodesk. Used by SparkFun and Adafruit — lots of open-source reference designs available. Free for small boards (&lt;2 layers).</div>
+      <div class="sw-features">
+        <span class="sw-feat">Free tier (2-layer)</span>
+        <span class="sw-feat">SparkFun designs</span>
+        <span class="sw-feat">CAD integration</span>
+      </div>
+    </div>
+    <div class="sw-card">
+      <div class="sw-logo">🟣</div>
+      <div class="sw-name">Fusion 360</div>
+      <div class="sw-type">PAID · AUTODESK</div>
+      <div class="sw-desc">Combines mechanical CAD + PCB design in one tool. Incredible for robotics — your PCB fits perfectly in your 3D-printed chassis by design.</div>
+      <div class="sw-features">
+        <span class="sw-feat">MCAD + ECAD</span>
+        <span class="sw-feat">3D integration</span>
+        <span class="sw-feat">Student free</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMMON MISTAKES -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">07</span>
+    <span class="sec-title">BEGINNER MISTAKES TO AVOID</span>
+  </div>
+  <div class="mistakes-grid">
+    <div class="mistake-card">
+      <div class="m-title">NO DECOUPLING CAPS</div>
+      <div class="m-prob">ICs are sensitive to power supply noise. Without decoupling capacitors (0.1μF + 10μF) near every IC's power pin, your circuit will behave erratically or fail.</div>
+      <div class="m-fix">Place a 100nF ceramic cap within 3mm of every IC VCC pin, and a 10μF electrolytic per power zone.</div>
+    </div>
+    <div class="mistake-card">
+      <div class="m-title">TRACES TOO THIN FOR POWER</div>
+      <div class="m-prob">Running 2A through a 0.2mm trace will heat it up, increase resistance, cause voltage drops, and potentially burn the PCB — destroying your robot.</div>
+      <div class="m-fix">Use a trace width calculator. For 2A, use at least 0.8mm. Use wide polygon pours for heavy power.</div>
+    </div>
+    <div class="mistake-card">
+      <div class="m-title">NO GROUND PLANE</div>
+      <div class="m-prob">Single traces for ground create loop antennas that generate noise. This kills signal integrity, causes sensor errors, and is the #1 reason beginner boards behave strangely.</div>
+      <div class="m-fix">Always flood unused areas with a copper pour connected to GND on both layers.</div>
+    </div>
+    <div class="mistake-card">
+      <div class="m-title">WRONG FOOTPRINT</div>
+      <div class="m-prob">You designed with an SOT-23 footprint but your component is SOT-23-5 (different pin count). Board comes back and nothing fits — expensive mistake.</div>
+      <div class="m-fix">Always verify footprint vs datasheet 3D model. KiCad's 3D viewer is excellent for this. Order a sample before bulk.</div>
+    </div>
+    <div class="mistake-card">
+      <div class="m-title">NO TEST POINTS</div>
+      <div class="m-prob">Your board has a bug. You have no test points. You can't probe any signals with an oscilloscope or multimeter. Debugging becomes nearly impossible.</div>
+      <div class="m-fix">Add exposed copper test pads to every important signal — SPI clock, power rails, UART TX/RX.</div>
+    </div>
+    <div class="mistake-card">
+      <div class="m-title">POLARIZED PARTS BACKWARDS</div>
+      <div class="m-prob">Electrolytic capacitor or diode placed in reverse polarity. Best case: board doesn't work. Worst case: capacitor explodes, IC burns, board is destroyed instantly.</div>
+      <div class="m-fix">Always check polarity markers in schematic AND layout. Use clear silkscreen + and – labels.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRE-MANUFACTURE CHECKLIST -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">08</span>
+    <span class="sec-title">PRE-MANUFACTURE CHECKLIST</span>
+  </div>
+  <div class="checklist" id="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">All nets are connected (0 unconnected in DRC)</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">DRC passes with zero errors</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Board outline (Edge Cuts) is closed</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">All component footprints verified against datasheets</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Power traces wide enough for current draw</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Decoupling caps placed near all IC power pins</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">GND copper pour on both layers</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">No 90° trace angles</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Silkscreen labels are readable and non-overlapping</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Test points added to key signals</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Polarized components marked correctly</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div class="check-text">Gerber files exported and reviewed in Gerber viewer</div></div>
+  </div>
+  <div class="checklist-progress">
+    <div class="prog-label"><span>PRE-FLIGHT PROGRESS</span><span id="prog-text">0 / 12</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+  </div>
+</div>
+
+<!-- LEARNING ROADMAP -->
+<div class="section fade-in">
+  <div class="section-header">
+    <span class="sec-num">09</span>
+    <span class="sec-title">PCB LEARNING ROADMAP</span>
+  </div>
+  <div class="roadmap">
+    <div class="road-step">
+      <div class="road-dot">1</div>
+      <div class="road-content">
+        <div class="road-title">LEARN KICAD — SCHEMATIC EDITOR</div>
+        <div class="road-desc">Draw your first schematic — an LED + resistor + power connector. Learn symbols, labels, power flags, ERC checks.</div>
+        <div class="road-tools"><span class="road-tool">KiCad</span><span class="road-tool">ERC</span><span class="road-tool">Symbol Library</span></div>
+      </div>
+    </div>
+    <div class="road-step">
+      <div class="road-dot">2</div>
+      <div class="road-content">
+        <div class="road-title">YOUR FIRST LAYOUT — LED BLINKER</div>
+        <div class="road-desc">Import netlist, place components, manually route traces. No autorouter — learn to think spatially about signal paths.</div>
+        <div class="road-tools"><span class="road-tool">PCB Editor</span><span class="road-tool">DRC</span><span class="road-tool">3D Viewer</span></div>
+      </div>
+    </div>
+    <div class="road-step">
+      <div class="road-dot">3</div>
+      <div class="road-content">
+        <div class="road-title">ORDER YOUR FIRST BOARD</div>
+        <div class="road-desc">Export Gerbers, upload to JLCPCB or PCBWay. ~$5 for 5 boards. Solder it yourself — you'll learn from every mistake.</div>
+        <div class="road-tools"><span class="road-tool">Gerber Export</span><span class="road-tool">JLCPCB</span><span class="road-tool">Soldering Iron</span></div>
+      </div>
+    </div>
+    <div class="road-step">
+      <div class="road-dot">4</div>
+      <div class="road-content">
+        <div class="road-title">ARDUINO SHIELD / SENSOR BOARD</div>
+        <div class="road-desc">Design a custom PCB that replaces a bundle of wires in one of your robots. Sensor breakout board, motor driver board, power distribution board.</div>
+        <div class="road-tools"><span class="road-tool">Multi-component</span><span class="road-tool">Headers</span><span class="road-tool">Power Planes</span></div>
+      </div>
+    </div>
+    <div class="road-step">
+      <div class="road-dot">5</div>
+      <div class="road-content">
+        <div class="road-title">FULL ROBOT CONTROL BOARD</div>
+        <div class="road-desc">MCU + motor driver + sensors + power regulation — all on one board. This is a real engineering product. Add mounting holes to fit your chassis.</div>
+        <div class="road-tools"><span class="road-tool">MCU footprint</span><span class="road-tool">LDO / Buck</span><span class="road-tool">SMD components</span></div>
+      </div>
+    </div>
+    <div class="road-step">
+      <div class="road-dot">6</div>
+      <div class="road-content">
+        <div class="road-title">4-LAYER BOARDS & HIGH SPEED</div>
+        <div class="road-desc">2 dedicated power/ground inner layers, controlled impedance traces. Required for ESP32, high-speed SPI, USB, and RF modules. Advanced territory.</div>
+        <div class="road-tools"><span class="road-tool">4-layer stackup</span><span class="road-tool">Impedance control</span><span class="road-tool">Differential pairs</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /container -->
+<footer>
+  ⚡ PCB DESIGN — COMPLETE REFERENCE // FOR ROBOTICS BUILDERS // BUILT WITH CLAUDE
+</footer>
+
+<script>
+// Tab switching
+function switchTab(id) {
+  document.querySelectorAll('.comp-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['smd','thru','connectors'][i] === id);
+  });
+  document.querySelectorAll('.comp-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+// Checklist
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const total = document.querySelectorAll('.check-item').length;
+  const done = document.querySelectorAll('.check-item.checked').length;
+  document.getElementById('prog-text').textContent = done + ' / ' + total;
+  document.getElementById('prog-fill').style.width = (done/total*100) + '%';
+}
+
+// Layer hover (SVG)
+document.querySelectorAll('.layer-item').forEach(item => {
+  item.addEventListener('mouseenter', () => {
+    document.querySelectorAll('.layer-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
+// Fade-in observer
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

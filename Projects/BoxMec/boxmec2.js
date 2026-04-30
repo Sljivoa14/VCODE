@@ -1,3 +1,5 @@
+//in proegress
+
 const inputBoxer1= document.getElementById("inputB1");
 const inputBoxer2= document.getElementById("inputB2");
 const inputWinner= document.getElementById("inputWinner");

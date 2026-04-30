@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ohm's Law & Robotics Fundamentals</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a10;
+    --panel: #0c1420;
+    --border: #1a3a5c;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #39ff14;
+    --text: #c8daea;
+    --dim: #4a6b82;
+    --glow: 0 0 20px rgba(0,229,255,0.4);
+    --glow2: 0 0 20px rgba(255,107,53,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 60px 20px 40px;
+    text-align: center;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    display: block;
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 30px auto 0;
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 16px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(0,229,255,0.5);
+    line-height: 1.1;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--dim);
+    font-size: 13px;
+    margin-top: 12px;
+    letter-spacing: 2px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section { margin: 60px 0; }
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+  .section-num {
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 10px;
+    padding: 2px 8px;
+    font-weight: 700;
+  }
+
+  /* ── OHM'S LAW TRIANGLE ── */
+  .ohm-hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media(max-width:700px){ .ohm-hero { grid-template-columns: 1fr; } }
+
+  .triangle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .triangle-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(0,229,255,0.06) 0%, transparent 70%);
+  }
+
+  svg.ohm-triangle { width: 240px; height: 240px; }
+
+  .formula-cards { display: flex; flex-direction: column; gap: 16px; }
+
+  .formula-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .formula-card:hover { border-color: var(--accent); transform: translateX(4px); }
+  .formula-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .formula-card.v::before { background: var(--accent); }
+  .formula-card.i::before { background: var(--accent2); }
+  .formula-card.r::before { background: var(--accent3); }
+
+  .formula-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--dim);
+    margin-bottom: 6px;
+  }
+  .formula-eq {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .formula-eq .v-color { color: var(--accent); }
+  .formula-eq .i-color { color: var(--accent2); }
+  .formula-eq .r-color { color: var(--accent3); }
+  .formula-desc { font-size: 13px; color: var(--dim); margin-top: 4px; }
+
+  /* ── INTERACTIVE CALCULATOR ── */
+  .calculator {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+  }
+  .calculator::before {
+    content: 'LIVE CALCULATOR';
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg);
+    padding: 0 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+  }
+  .calc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media(max-width:500px){ .calc-grid { grid-template-columns: 1fr; } }
+
+  .calc-field label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .calc-field.v label { color: var(--accent); }
+  .calc-field.i label { color: var(--accent2); }
+  .calc-field.r label { color: var(--accent3); }
+
+  .calc-field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 12px 16px;
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .calc-field input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+  .calc-field input.solved { background: rgba(0,229,255,0.05); }
+
+  .calc-solve {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 12px 24px;
+    border: 1px solid;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .btn-primary { border-color: var(--accent); color: var(--accent); }
+  .btn-primary:hover { background: var(--accent); color: var(--bg); box-shadow: var(--glow); }
+  .btn-secondary { border-color: var(--border); color: var(--dim); }
+  .btn-secondary:hover { border-color: var(--dim); color: var(--text); }
+
+  .calc-result {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: rgba(0,229,255,0.05);
+    border: 1px solid rgba(0,229,255,0.2);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    display: none;
+  }
+  .calc-result.show { display: block; }
+
+  /* ── POWER FORMULA ── */
+  .power-banner {
+    background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.03));
+    border: 1px solid rgba(255,107,53,0.3);
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .power-icon { font-size: 48px; }
+  .power-eq {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .power-forms { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+  .power-form {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--dim);
+    padding: 4px 12px;
+    border: 1px solid rgba(255,107,53,0.2);
+  }
+
+  /* ── COMPONENTS GRID ── */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .comp-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .comp-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .comp-icon { font-size: 36px; margin-bottom: 12px; }
+  .comp-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .comp-desc { font-size: 13px; color: var(--dim); line-height: 1.5; }
+  .comp-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    padding: 2px 10px;
+    border: 1px solid;
+  }
+  .tag-input { color: var(--accent3); border-color: var(--accent3); }
+  .tag-output { color: var(--accent2); border-color: var(--accent2); }
+  .tag-brain { color: var(--accent); border-color: var(--accent); }
+  .tag-power { color: #ffd700; border-color: #ffd700; }
+
+  /* ── CIRCUIT RULES ── */
+  .circuit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width:600px){ .circuit-grid { grid-template-columns: 1fr; } }
+
+  .circuit-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 28px;
+  }
+  .circuit-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .circuit-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .dot-series { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .dot-parallel { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+  }
+
+  .circuit-svg { width: 100%; height: 120px; margin: 16px 0; }
+  .circuit-rule {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--dim);
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    line-height: 1.7;
+  }
+
+  /* ── LEARNING PATH ── */
+  .path-steps { position: relative; }
+  .path-steps::before {
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: 40px;
+    bottom: 20px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2), var(--accent3), transparent);
+  }
+  .path-step {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .step-num {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    z-index: 1;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .path-step:hover .step-num { border-color: var(--accent); box-shadow: var(--glow); }
+  .step-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    flex: 1;
+    transition: border-color 0.3s;
+  }
+  .path-step:hover .step-content { border-color: var(--border); border-color: rgba(0,229,255,0.3); }
+  .step-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .step-desc { font-size: 14px; color: var(--dim); }
+  .step-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .step-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 2px 10px;
+    border: 1px solid var(--border);
+    color: var(--dim);
+  }
+
+  /* ── LED RESISTOR TOOL ── */
+  .led-tool {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px;
+    position: relative;
+  }
+  .led-tool::before {
+    content: 'LED RESISTOR CALCULATOR';
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg);
+    padding: 0 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent3);
+    letter-spacing: 3px;
+  }
+  .led-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .led-field label {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent3);
+    margin-bottom: 8px;
+  }
+  .led-field input, .led-field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 10px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .led-field input:focus, .led-field select:focus { border-color: var(--accent3); }
+  .led-field select option { background: var(--bg); }
+  .led-result {
+    padding: 20px;
+    background: rgba(57,255,20,0.05);
+    border: 1px solid rgba(57,255,20,0.2);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    display: none;
+  }
+  .led-result.show { display: block; }
+  .led-result .big { font-size: 28px; color: var(--accent3); font-family: 'Orbitron', sans-serif; }
+
+  /* ── CHEAT SHEET ── */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .cheat-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cheat-label { font-size: 13px; color: var(--dim); }
+  .cheat-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 60px 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+
+  /* Scanline effect */
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: rgba(0,229,255,0.08);
+    pointer-events: none;
+    animation: scan 6s linear infinite;
+    z-index: 100;
+  }
+  @keyframes scan { from { top: -2px; } to { top: 100vh; } }
+
+  /* Fade-in animation */
+  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="container">
+    <div class="header-badge">⚡ Electronics × Robotics</div>
+    <h1>OHM'S LAW &<br><span>ROBOTICS</span> FUNDAMENTALS</h1>
+    <p class="subtitle">// DEEP DIVE — INTERACTIVE REFERENCE GUIDE //</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SECTION 1: OHM'S LAW -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">01</span> OHM'S LAW</div>
+    <div class="ohm-hero">
+
+      <!-- Triangle SVG -->
+      <div class="triangle-wrapper">
+        <svg class="ohm-triangle" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer glow triangle -->
+          <polygon points="120,20 220,200 20,200" fill="none" stroke="rgba(0,229,255,0.15)" stroke-width="2"/>
+          <!-- Dividing lines -->
+          <line x1="120" y1="110" x2="20" y2="200" stroke="rgba(0,229,255,0.2)" stroke-width="1.5"/>
+          <line x1="120" y1="110" x2="220" y2="200" stroke="rgba(0,229,255,0.2)" stroke-width="1.5"/>
+          <line x1="20" y1="200" x2="220" y2="200" stroke="rgba(0,229,255,0.2)" stroke-width="1.5"/>
+          <!-- Top cell: V -->
+          <polygon points="120,20 220,200 20,200" fill="rgba(0,229,255,0.05)"/>
+          <polygon points="120,30 210,190 120,110" fill="rgba(0,229,255,0.08)"/>
+          <text x="120" y="90" text-anchor="middle" fill="#00e5ff" font-family="Orbitron,sans-serif" font-size="32" font-weight="900">V</text>
+          <text x="120" y="108" text-anchor="middle" fill="rgba(0,229,255,0.5)" font-family="Share Tech Mono,monospace" font-size="9" letter-spacing="2">VOLTAGE</text>
+          <!-- Bottom left: I -->
+          <polygon points="120,110 20,200 120,200" fill="rgba(255,107,53,0.08)"/>
+          <text x="72" y="172" text-anchor="middle" fill="#ff6b35" font-family="Orbitron,sans-serif" font-size="28" font-weight="900">I</text>
+          <text x="72" y="188" text-anchor="middle" fill="rgba(255,107,53,0.5)" font-family="Share Tech Mono,monospace" font-size="8" letter-spacing="1">CURRENT</text>
+          <!-- Bottom right: R -->
+          <polygon points="120,110 220,200 120,200" fill="rgba(57,255,20,0.08)"/>
+          <text x="170" y="172" text-anchor="middle" fill="#39ff14" font-family="Orbitron,sans-serif" font-size="28" font-weight="900">R</text>
+          <text x="170" y="188" text-anchor="middle" fill="rgba(57,255,20,0.5)" font-family="Share Tech Mono,monospace" font-size="8" letter-spacing="1">RESISTANCE</text>
+          <!-- Divider horizontal -->
+          <line x1="40" y1="200" x2="200" y2="200" stroke="rgba(0,229,255,0.4)" stroke-width="2"/>
+          <line x1="120" y1="112" x2="120" y2="198" stroke="rgba(0,229,255,0.4)" stroke-width="2"/>
+          <!-- Center × symbol -->
+          <text x="120" y="204" text-anchor="middle" fill="rgba(0,229,255,0.6)" font-family="Share Tech Mono,monospace" font-size="11">×</text>
+        </svg>
+      </div>
+
+      <!-- Formula cards -->
+      <div class="formula-cards">
+        <div class="formula-card v">
+          <div class="formula-label">FIND VOLTAGE</div>
+          <div class="formula-eq"><span class="v-color">V</span> = <span class="i-color">I</span> × <span class="r-color">R</span></div>
+          <div class="formula-desc">Current × Resistance = Voltage</div>
+        </div>
+        <div class="formula-card i">
+          <div class="formula-label">FIND CURRENT</div>
+          <div class="formula-eq"><span class="i-color">I</span> = <span class="v-color">V</span> / <span class="r-color">R</span></div>
+          <div class="formula-desc">Voltage ÷ Resistance = Current</div>
+        </div>
+        <div class="formula-card r">
+          <div class="formula-label">FIND RESISTANCE</div>
+          <div class="formula-eq"><span class="r-color">R</span> = <span class="v-color">V</span> / <span class="i-color">I</span></div>
+          <div class="formula-desc">Voltage ÷ Current = Resistance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: CALCULATOR -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">02</span> INTERACTIVE CALCULATOR</div>
+    <div class="calculator">
+      <div class="calc-grid">
+        <div class="calc-field v">
+          <label>V — VOLTAGE (Volts)</label>
+          <input type="number" id="calc-v" placeholder="?" min="0" step="0.1">
+        </div>
+        <div class="calc-field i">
+          <label>I — CURRENT (Amps)</label>
+          <input type="number" id="calc-i" placeholder="?" min="0" step="0.01">
+        </div>
+        <div class="calc-field r">
+          <label>R — RESISTANCE (Ω)</label>
+          <input type="number" id="calc-r" placeholder="?" min="0" step="0.1">
+        </div>
+      </div>
+      <div class="calc-solve">
+        <button class="btn btn-primary" onclick="solveOhm()">⚡ SOLVE</button>
+        <button class="btn btn-secondary" onclick="resetCalc()">↺ RESET</button>
+      </div>
+      <div class="calc-result" id="calc-result"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: POWER -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">03</span> POWER FORMULA</div>
+    <div class="power-banner">
+      <div class="power-icon">⚡</div>
+      <div>
+        <div class="power-eq">P = V × I</div>
+        <div style="font-size:13px; color:var(--dim); margin-top:4px;">Measured in <strong style="color:#fff">Watts (W)</strong> — critical for motor & battery selection</div>
+        <div class="power-forms">
+          <span class="power-form">P = V × I</span>
+          <span class="power-form">P = I² × R</span>
+          <span class="power-form">P = V² / R</span>
+        </div>
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <div style="font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--dim); line-height:2;">
+          <div>🔋 12V motor drawing 2A = <strong style="color:var(--accent2)">24W</strong></div>
+          <div>🔋 5V Arduino at 0.1A = <strong style="color:var(--accent2)">0.5W</strong></div>
+          <div>🔋 6V servo at 0.5A = <strong style="color:var(--accent2)">3W</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: CIRCUIT TYPES -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">04</span> SERIES vs PARALLEL CIRCUITS</div>
+    <div class="circuit-grid">
+
+      <div class="circuit-card">
+        <div class="circuit-title">
+          <div class="dot dot-series"></div>
+          SERIES CIRCUIT
+        </div>
+        <!-- Series SVG -->
+        <svg class="circuit-svg" viewBox="0 0 300 120">
+          <!-- Wire -->
+          <line x1="20" y1="60" x2="60" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <line x1="100" y1="60" x2="140" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <line x1="180" y1="60" x2="220" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <line x1="260" y1="60" x2="280" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <!-- Return wire top -->
+          <line x1="20" y1="20" x2="280" y2="20" stroke="#00e5ff" stroke-width="2" stroke-dasharray="4,4"/>
+          <line x1="20" y1="20" x2="20" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <line x1="280" y1="20" x2="280" y2="60" stroke="#00e5ff" stroke-width="2"/>
+          <!-- R1 box -->
+          <rect x="60" y="46" width="40" height="28" fill="var(--panel)" stroke="#00e5ff" stroke-width="1.5" rx="2"/>
+          <text x="80" y="64" text-anchor="middle" fill="#00e5ff" font-family="Share Tech Mono,monospace" font-size="11">R1</text>
+          <!-- R2 box -->
+          <rect x="140" y="46" width="40" height="28" fill="var(--panel)" stroke="#00e5ff" stroke-width="1.5" rx="2"/>
+          <text x="160" y="64" text-anchor="middle" fill="#00e5ff" font-family="Share Tech Mono,monospace" font-size="11">R2</text>
+          <!-- R3 box -->
+          <rect x="220" y="46" width="40" height="28" fill="var(--panel)" stroke="#00e5ff" stroke-width="1.5" rx="2"/>
+          <text x="240" y="64" text-anchor="middle" fill="#00e5ff" font-family="Share Tech Mono,monospace" font-size="11">R3</text>
+          <!-- Current arrows -->
+          <text x="42" y="56" fill="rgba(0,229,255,0.6)" font-size="12">→</text>
+          <text x="118" y="56" fill="rgba(0,229,255,0.6)" font-size="12">→</text>
+          <text x="198" y="56" fill="rgba(0,229,255,0.6)" font-size="12">→</text>
+          <!-- Label -->
+          <text x="150" y="108" text-anchor="middle" fill="rgba(0,229,255,0.4)" font-family="Share Tech Mono,monospace" font-size="9">SAME CURRENT THROUGH ALL</text>
+        </svg>
+        <div class="circuit-rule">
+          <strong style="color:#fff">R_total = R1 + R2 + R3</strong><br>
+          Current is identical everywhere<br>
+          Voltage splits across each resistor<br>
+          One break = entire circuit fails
+        </div>
+      </div>
+
+      <div class="circuit-card">
+        <div class="circuit-title">
+          <div class="dot dot-parallel"></div>
+          PARALLEL CIRCUIT
+        </div>
+        <!-- Parallel SVG -->
+        <svg class="circuit-svg" viewBox="0 0 300 120">
+          <!-- Top rail -->
+          <line x1="20" y1="30" x2="280" y2="30" stroke="#ff6b35" stroke-width="2"/>
+          <!-- Bottom rail -->
+          <line x1="20" y1="90" x2="280" y2="90" stroke="#ff6b35" stroke-width="2"/>
+          <!-- Left wire -->
+          <line x1="20" y1="30" x2="20" y2="90" stroke="#ff6b35" stroke-width="2"/>
+          <!-- Right wire -->
+          <line x1="280" y1="30" x2="280" y2="90" stroke="#ff6b35" stroke-width="2"/>
+          <!-- R1 vertical -->
+          <rect x="82" y="40" width="30" height="40" fill="var(--panel)" stroke="#ff6b35" stroke-width="1.5" rx="2"/>
+          <text x="97" y="64" text-anchor="middle" fill="#ff6b35" font-family="Share Tech Mono,monospace" font-size="11">R1</text>
+          <line x1="97" y1="30" x2="97" y2="40" stroke="#ff6b35" stroke-width="1.5"/>
+          <line x1="97" y1="80" x2="97" y2="90" stroke="#ff6b35" stroke-width="1.5"/>
+          <!-- R2 vertical -->
+          <rect x="135" y="40" width="30" height="40" fill="var(--panel)" stroke="#ff6b35" stroke-width="1.5" rx="2"/>
+          <text x="150" y="64" text-anchor="middle" fill="#ff6b35" font-family="Share Tech Mono,monospace" font-size="11">R2</text>
+          <line x1="150" y1="30" x2="150" y2="40" stroke="#ff6b35" stroke-width="1.5"/>
+          <line x1="150" y1="80" x2="150" y2="90" stroke="#ff6b35" stroke-width="1.5"/>
+          <!-- R3 vertical -->
+          <rect x="188" y="40" width="30" height="40" fill="var(--panel)" stroke="#ff6b35" stroke-width="1.5" rx="2"/>
+          <text x="203" y="64" text-anchor="middle" fill="#ff6b35" font-family="Share Tech Mono,monospace" font-size="11">R3</text>
+          <line x1="203" y1="30" x2="203" y2="40" stroke="#ff6b35" stroke-width="1.5"/>
+          <line x1="203" y1="80" x2="203" y2="90" stroke="#ff6b35" stroke-width="1.5"/>
+          <!-- Label -->
+          <text x="150" y="110" text-anchor="middle" fill="rgba(255,107,53,0.4)" font-family="Share Tech Mono,monospace" font-size="9">SAME VOLTAGE ACROSS ALL</text>
+        </svg>
+        <div class="circuit-rule">
+          <strong style="color:#fff">1/R_total = 1/R1 + 1/R2 + 1/R3</strong><br>
+          Voltage is identical everywhere<br>
+          Current splits across branches<br>
+          One break = others still work
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: ROBOT COMPONENTS -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">05</span> ROBOT COMPONENTS</div>
+    <div class="components-grid">
+      <div class="comp-card">
+        <div class="comp-icon">🎯</div>
+        <div class="comp-name">DC MOTOR</div>
+        <div class="comp-desc">Continuous rotation. Used for wheels and drivetrains. Speed controlled via PWM signal.</div>
+        <span class="comp-tag tag-output">OUTPUT</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🔄</div>
+        <div class="comp-name">SERVO MOTOR</div>
+        <div class="comp-desc">Precise angle control 0°–180°. Used for arms, grippers, and steering. Feedback loop built-in.</div>
+        <span class="comp-tag tag-output">OUTPUT</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📐</div>
+        <div class="comp-name">STEPPER MOTOR</div>
+        <div class="comp-desc">Exact step-by-step rotation. Used in 3D printers and CNC machines. No feedback needed.</div>
+        <span class="comp-tag tag-output">OUTPUT</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📡</div>
+        <div class="comp-name">ULTRASONIC</div>
+        <div class="comp-desc">Measures distance via sound waves. Obstacle avoidance. Range: 2cm–400cm. Uses HC-SR04.</div>
+        <span class="comp-tag tag-input">SENSOR</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">👁️</div>
+        <div class="comp-name">IR SENSOR</div>
+        <div class="comp-desc">Detects objects or follows lines. Reflects infrared light. Short range. Used in line-follower robots.</div>
+        <span class="comp-tag tag-input">SENSOR</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🧭</div>
+        <div class="comp-name">IMU / GYRO</div>
+        <div class="comp-desc">Measures orientation, tilt, acceleration. Essential for balance robots and drones. MPU-6050.</div>
+        <span class="comp-tag tag-input">SENSOR</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🧠</div>
+        <div class="comp-name">ARDUINO</div>
+        <div class="comp-desc">Beginner-friendly microcontroller. 14 digital pins, 6 analog. 5V logic. C++ programming.</div>
+        <span class="comp-tag tag-brain">BRAIN</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">💻</div>
+        <div class="comp-name">RASPBERRY PI</div>
+        <div class="comp-desc">Full Linux computer on a board. Camera, WiFi, AI capable. Python programming. 5V powered.</div>
+        <span class="comp-tag tag-brain">BRAIN</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📶</div>
+        <div class="comp-name">ESP32</div>
+        <div class="comp-desc">WiFi + Bluetooth built in. Arduino compatible. Great for IoT robots. Dual-core processor.</div>
+        <span class="comp-tag tag-brain">BRAIN</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🔋</div>
+        <div class="comp-name">LIPO BATTERY</div>
+        <div class="comp-desc">Lithium polymer. Lightweight, high energy density. Used in drones and RC robots. Needs BMS.</div>
+        <span class="comp-tag tag-power">POWER</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🔌</div>
+        <div class="comp-name">MOTOR DRIVER</div>
+        <div class="comp-desc">Controls motor direction and speed. L298N handles 2A per channel. Bridges MCU to motor.</div>
+        <span class="comp-tag tag-output">DRIVER</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">⚙️</div>
+        <div class="comp-name">VOLTAGE REG</div>
+        <div class="comp-desc">Steps voltage down safely. LM7805 converts 12V→5V. Always required to protect your MCU.</div>
+        <span class="comp-tag tag-power">POWER</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: LED CALCULATOR -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">06</span> LED RESISTOR CALCULATOR</div>
+    <div class="led-tool">
+      <div class="led-grid">
+        <div class="led-field">
+          <label>SUPPLY VOLTAGE (V)</label>
+          <input type="number" id="led-supply" value="5" min="1" step="0.5">
+        </div>
+        <div class="led-field">
+          <label>LED FORWARD VOLTAGE (V)</label>
+          <input type="number" id="led-forward" value="2.0" min="0.5" step="0.1">
+        </div>
+        <div class="led-field">
+          <label>LED CURRENT (mA)</label>
+          <input type="number" id="led-current" value="20" min="1" step="1">
+        </div>
+        <div class="led-field">
+          <label>LED COLOR</label>
+          <select id="led-color">
+            <option value="2.0,20">🔴 Red (2.0V / 20mA)</option>
+            <option value="2.1,20">🟡 Yellow (2.1V / 20mA)</option>
+            <option value="2.2,20" selected>🟢 Green (2.2V / 20mA)</option>
+            <option value="3.2,20">🔵 Blue (3.2V / 20mA)</option>
+            <option value="3.4,20">⚪ White (3.4V / 20mA)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="border-color:var(--accent3);color:var(--accent3);" onclick="calcLED()">🔦 CALCULATE RESISTOR</button>
+      <div class="led-result" id="led-result"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: CHEAT SHEET -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">07</span> ROBOTICS CHEAT SHEET</div>
+    <div class="cheat-grid">
+      <div class="cheat-item"><span class="cheat-label">Arduino GPIO max</span><span class="cheat-val">40 mA</span></div>
+      <div class="cheat-item"><span class="cheat-label">Arduino supply</span><span class="cheat-val">5V / 3.3V</span></div>
+      <div class="cheat-item"><span class="cheat-label">Servo signal</span><span class="cheat-val">PWM 50Hz</span></div>
+      <div class="cheat-item"><span class="cheat-label">Servo pulse width</span><span class="cheat-val">1–2 ms</span></div>
+      <div class="cheat-item"><span class="cheat-label">HC-SR04 range</span><span class="cheat-val">2–400 cm</span></div>
+      <div class="cheat-item"><span class="cheat-label">LiPo cell voltage</span><span class="cheat-val">3.7V nominal</span></div>
+      <div class="cheat-item"><span class="cheat-label">I²C address bits</span><span class="cheat-val">7-bit (128)</span></div>
+      <div class="cheat-item"><span class="cheat-label">SPI clock speed</span><span class="cheat-val">up to 80 MHz</span></div>
+      <div class="cheat-item"><span class="cheat-label">L298N max current</span><span class="cheat-val">2A / channel</span></div>
+      <div class="cheat-item"><span class="cheat-label">Typical LED voltage</span><span class="cheat-val">2.0–3.4V</span></div>
+      <div class="cheat-item"><span class="cheat-label">RPi GPIO voltage</span><span class="cheat-val">3.3V (NOT 5V!)</span></div>
+      <div class="cheat-item"><span class="cheat-label">PWM frequency</span><span class="cheat-val">490–980 Hz</span></div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: LEARNING PATH -->
+  <div class="section fade-in">
+    <div class="section-title"><span class="section-num">08</span> LEARNING ROADMAP</div>
+    <div class="path-steps">
+      <div class="path-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-title">MASTER OHM'S LAW</div>
+          <div class="step-desc">Build simple LED circuits. Calculate resistors. Measure voltage and current with a multimeter. Understand series and parallel.</div>
+          <div class="step-tags"><span class="step-tag">Breadboard</span><span class="step-tag">Multimeter</span><span class="step-tag">LEDs</span><span class="step-tag">Resistors</span></div>
+        </div>
+      </div>
+      <div class="path-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-title">LEARN ARDUINO BASICS</div>
+          <div class="step-desc">Blink LEDs, read sensors, use digitalRead/Write, analogRead. Understand PWM, I²C, and serial communication.</div>
+          <div class="step-tags"><span class="step-tag">Arduino IDE</span><span class="step-tag">C++</span><span class="step-tag">GPIO</span><span class="step-tag">Serial Monitor</span></div>
+        </div>
+      </div>
+      <div class="path-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-title">BUILD A SIMPLE ROBOT</div>
+          <div class="step-desc">2 DC motors + ultrasonic sensor + motor driver. Make it move forward, detect obstacles, and turn. Your first autonomous robot!</div>
+          <div class="step-tags"><span class="step-tag">DC Motors</span><span class="step-tag">L298N</span><span class="step-tag">HC-SR04</span><span class="step-tag">Chassis</span></div>
+        </div>
+      </div>
+      <div class="path-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <div class="step-title">ADD SENSORS & FEEDBACK</div>
+          <div class="step-desc">Add encoders for precise movement, a gyroscope for orientation, and PID control to make movements smooth and accurate.</div>
+          <div class="step-tags"><span class="step-tag">Encoders</span><span class="step-tag">MPU-6050</span><span class="step-tag">PID Control</span><span class="step-tag">Closed Loop</span></div>
+        </div>
+      </div>
+      <div class="path-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <div class="step-title">LEVEL UP WITH RASPBERRY PI</div>
+          <div class="step-desc">Camera vision, Python ML models, WiFi control, and ROS (Robot Operating System). Build truly intelligent autonomous systems.</div>
+          <div class="step-tags"><span class="step-tag">Python</span><span class="step-tag">OpenCV</span><span class="step-tag">ROS</span><span class="step-tag">AI / ML</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ⚡ OHM'S LAW × ROBOTICS FUNDAMENTALS // INTERACTIVE REFERENCE // BUILT WITH CLAUDE
+</footer>
+
+<script>
+  // ── OHM'S LAW CALCULATOR ──
+  function solveOhm() {
+    const v = parseFloat(document.getElementById('calc-v').value);
+    const i = parseFloat(document.getElementById('calc-i').value);
+    const r = parseFloat(document.getElementById('calc-r').value);
+    const result = document.getElementById('calc-result');
+
+    const known = [!isNaN(v), !isNaN(i), !isNaN(r)];
+    const count = known.filter(Boolean).length;
+
+    if (count < 2) {
+      result.className = 'calc-result show';
+      result.style.borderColor = 'rgba(255,107,53,0.4)';
+      result.style.color = 'var(--accent2)';
+      result.innerHTML = '⚠ Enter any TWO values to solve for the third.';
+      return;
+    }
+
+    result.style.borderColor = 'rgba(0,229,255,0.2)';
+    result.style.color = 'var(--accent)';
+
+    let output = '';
+    if (!known[0]) {
+      const vSolved = (i * r).toFixed(3);
+      document.getElementById('calc-v').value = vSolved;
+      output = `✓ V = I × R = ${i} × ${r} = <strong>${vSolved} Volts</strong>`;
+      const p = (vSolved * i).toFixed(3);
+      output += `<br>⚡ Power = V × I = ${vSolved} × ${i} = <strong>${p} Watts</strong>`;
+    } else if (!known[1]) {
+      const iSolved = (v / r).toFixed(4);
+      document.getElementById('calc-i').value = iSolved;
+      output = `✓ I = V / R = ${v} / ${r} = <strong>${iSolved} Amps</strong>`;
+      const p = (v * iSolved).toFixed(3);
+      output += `<br>⚡ Power = V × I = ${v} × ${iSolved} = <strong>${p} Watts</strong>`;
+    } else if (!known[2]) {
+      const rSolved = (v / i).toFixed(3);
+      document.getElementById('calc-r').value = rSolved;
+      output = `✓ R = V / I = ${v} / ${i} = <strong>${rSolved} Ohms (Ω)</strong>`;
+      const p = (v * i).toFixed(3);
+      output += `<br>⚡ Power = V × I = ${v} × ${i} = <strong>${p} Watts</strong>`;
+    } else {
+      const p = (v * i).toFixed(3);
+      output = `✓ All values provided. Power = V × I = <strong>${p} Watts</strong>`;
+      const check = Math.abs(v - i * r) < 0.01;
+      output += check ? '<br>✅ Values are consistent with Ohm\'s Law.' : '<br>⚠ Values may not satisfy Ohm\'s Law — check your inputs.';
+    }
+
+    result.className = 'calc-result show';
+    result.innerHTML = output;
+  }
+
+  function resetCalc() {
+    ['calc-v','calc-i','calc-r'].forEach(id => document.getElementById(id).value = '');
+    const r = document.getElementById('calc-result');
+    r.className = 'calc-result';
+    r.innerHTML = '';
+  }
+
+  // ── LED CALCULATOR ──
+  document.getElementById('led-color').addEventListener('change', function() {
+    const [fv, fc] = this.value.split(',');
+    document.getElementById('led-forward').value = fv;
+    document.getElementById('led-current').value = fc;
+  });
+
+  function calcLED() {
+    const vs = parseFloat(document.getElementById('led-supply').value);
+    const vf = parseFloat(document.getElementById('led-forward').value);
+    const im = parseFloat(document.getElementById('led-current').value);
+    const result = document.getElementById('led-result');
+
+    if (vs <= vf) {
+      result.className = 'led-result show';
+      result.style.borderColor = 'rgba(255,107,53,0.3)';
+      result.innerHTML = '<span style="color:var(--accent2)">⚠ Supply voltage must be greater than LED forward voltage!</span>';
+      return;
+    }
+
+    const ia = im / 1000;
+    const rExact = (vs - vf) / ia;
+    const rStandard = getStandardResistor(rExact);
+    const actualI = ((vs - vf) / rStandard * 1000).toFixed(1);
+    const power = ((vs - vf) * ia * 1000).toFixed(1);
+
+    result.style.borderColor = 'rgba(57,255,20,0.2)';
+    result.className = 'led-result show';
+    result.innerHTML = `
+      <div style="color:var(--dim); margin-bottom:12px;">R = (Vs − Vf) / I = (${vs} − ${vf}) / ${ia.toFixed(3)} = <strong style="color:#fff">${rExact.toFixed(1)} Ω</strong></div>
+      <div class="big">${rStandard} Ω</div>
+      <div style="color:var(--dim); font-size:11px; margin-top:4px;">Nearest standard E24 resistor value</div>
+      <div style="margin-top:12px; color:var(--dim);">
+        Actual current: <strong style="color:#fff">${actualI} mA</strong> &nbsp;|&nbsp;
+        Power dissipated: <strong style="color:#fff">${power} mW</strong>
+      </div>
+    `;
+  }
+
+  function getStandardResistor(r) {
+    const e24 = [1.0,1.1,1.2,1.3,1.5,1.6,1.8,2.0,2.2,2.4,2.7,3.0,3.3,3.6,3.9,4.3,4.7,5.1,5.6,6.2,6.8,7.5,8.2,9.1];
+    const decades = [1,10,100,1000,10000,100000];
+    let best = 10, bestDiff = Infinity;
+    for (const dec of decades) {
+      for (const e of e24) {
+        const val = e * dec;
+        const diff = Math.abs(val - r);
+        if (diff < bestDiff) { bestDiff = diff; best = val; }
+      }
+    }
+    return best >= 1000 ? (best/1000).toFixed(1)+'k' : best;
+  }
+
+  // ── FADE IN OBSERVER ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
