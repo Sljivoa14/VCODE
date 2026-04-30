@@ -1,65 +1,124 @@
-//in proegress
+// STORAGE
+let matches = [];
+let currentId = 1;
 
-const inputBoxer1= document.getElementById("inputB1");
-const inputBoxer2= document.getElementById("inputB2");
-const inputWinner= document.getElementById("inputWinner");
-const inputMethod= document.getElementById("inputMethod");
-const inputRound= document.getElementById("inputRound");
-const addMatchButton = document.getElementById("addMatchButton");
+// ADD MATCH FROM INPUTS
+function addMatch() {
+    const boxer1 = document.getElementById("inputB1").value.trim();
+    const boxer2 = document.getElementById("inputB2").value.trim();
+    const winner = document.getElementById("inputWinner").value.trim();
+    const method = document.getElementById("inputMethod").value.trim();
+    const rounds = Number(document.getElementById("inputRound").value);
 
-const matches = [];
-const validMethods = ["KO", "TKO", "Decision", "Draw"];
-const flaggedMatches = [];
-const wins = {};
-const roundUsed = {};
-
-addMatchButton.addEventListener("click", () => {
-    const boxer1 = inputBoxer1.value.trim();
-    const boxer2 = inputBoxer2.value.trim();
-    const winner = inputWinner.value.trim();
-    const method = inputMethod.value.trim();
-    const round = parseInt(inputRound.value.trim());
-});
-
-function runAnalysis()     {
-    const results ={
-        totalMatches: matches.length,
-        topBoxer: null,
-        koWins:0,
-        flaggedMatches: []   // const result koji vracamo ( return) poslje analize svih meceva, a flaggedMatches je niz koji ce sadrzavati informacije o mecevima koji su problematicni (npr. onaj gdje pobjednik nije ni boxer1 ni boxer2, ili onaj gdje je metoda pobjede nepoznata, ili onaj gdje je broj rundi nevalidan)
+    const match = {
+        id: currentId++,
+        boxer1,
+        boxer2,
+        winner,
+        method,
+        rounds
     };
 
-    const wins= {};
-    const roundsUsed = {};
-    const methods = ["KO", "Decision", "TKO"];
-    
-    matches.forEach(match => {
-        //provjera winnera
-        if(match.winner !== match.boxer1 && match.winner !== match.boxer2){
-            results.flaggedMatches.push({id: match.id, reason: "Winner not in match"});  
+    matches.push(match);
+
+    console.log("Match added:", match);
+
+    // run analysis every time you add
+    const result = analyzeBoxingMatches(matches);
+    console.log("Analysis:", result);
+}
+
+// MAIN FUNCTION
+function analyzeBoxingMatches(matchesArray) {
+
+    let totalMatches = matchesArray.length;
+    let knockoutWins = 0;
+    let flaggedMatches = [];
+
+    const validMethods = ["KO", "TKO", "Decision"];
+
+    let wins = {};       // { name: wins }
+    let roundsUsed = {}; // { name: totalRounds }
+
+    // LOOP THROUGH MATCHES
+    matchesArray.forEach(match => {
+
+        const { id, boxer1, boxer2, winner, method, rounds } = match;
+
+        let hasError = false;
+
+        // RULE 1: winner must be in match
+        if (winner !== boxer1 && winner !== boxer2) {
+            flaggedMatches.push({ id, issue: "Winner not in match" });
+            hasError = true;
         }
-        //nepoznat metod pobjede
-        if(!methods.includes(match.method)){
-            results.flaggedMatches.push({id: match.id, reason: "Unknown method of victory"});
+
+        // RULE 2: rounds <= 12
+        if (rounds > 12) {
+            flaggedMatches.push({ id, issue: "Too many rounds" });
+            hasError = true;
         }
-        //broj rundi
-        if(match.round < 1 || match.round > 12){
-            results.flaggedMatches.push({id: match.id, reason: "Invalid number of rounds"});
+
+        // RULE 3: valid method
+        if (!validMethods.includes(method)) {
+            flaggedMatches.push({ id, issue: "Unknown method" });
+            hasError = true;
         }
-        //KO pobjede
-        if(match.method === "KO"){
-            results.koWins++;
+
+        // COUNT KO / TKO
+        if (method === "KO" || method === "TKO") {
+            knockoutWins++;
+        }
+
+        // ONLY VALID MATCHES COUNT FOR STATS
+        if (!hasError) {
+
+            if (!wins[winner]) {
+                wins[winner] = 0;
+                roundsUsed[winner] = 0;
+            }
+
+            wins[winner]++;
+            roundsUsed[winner] += rounds;
         }
     });
 
-    //odredivanje najboljeg boxera
-    let maxWins = 0;
-    for(const [boxer, winCount] of Object.entries(wins)){
-        if(winCount > maxWins){
-            maxWins = winCount;
-            results.topBoxer = boxer;
+    // DETERMINE TOP BOXER
+    let topBoxer = null;
+
+    Object.keys(wins).forEach(name => {
+        if (!topBoxer) {
+            topBoxer = name;
+        } else {
+            if (
+                wins[name] > wins[topBoxer] ||
+                (
+                    wins[name] === wins[topBoxer] &&
+                    roundsUsed[name] < roundsUsed[topBoxer]
+                )
+            ) {
+                topBoxer = name;
+            }
         }
+    });
+
+    // BUILD RESULT
+    const result = {
+        totalMatches,
+        topBoxer,
+        knockoutWins,
+        flaggedMatches
+    };
+
+    // ADD RANKING ONLY IF NO ERRORS
+    if (flaggedMatches.length === 0) {
+        result.ranking = Object.keys(wins)
+            .map(name => ({
+                name,
+                wins: wins[name]
+            }))
+            .sort((a, b) => b.wins - a.wins);
     }
 
-    return results;
+    return result;
 }
