@@ -1,0 +1,461 @@
+
+<h2 class="sr-only">A full interactive life plan covering CS degree, cybersecurity certifications, robotics master's degree, jobs, daily schedule, mindset principles, and total costs from age 18 to 30.</h2>
+
+<style>
+* { box-sizing: border-box; }
+.tab-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tab { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 14px; font-size: 12px; color: var(--color-text-secondary); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.tab.active { background: var(--color-background-primary); border: 1.5px solid #534AB7; color: #3C3489; font-weight: 500; }
+.tab:hover:not(.active) { color: var(--color-text-primary); border-color: var(--color-border-secondary); }
+.section { display: none; }
+.section.visible { display: block; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 12px; }
+.card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 10px 0; }
+.mini { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem 1rem; }
+.mini-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.row:last-child { border-bottom: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.row-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+.row-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin: 2px 2px 2px 0; }
+.t-blue { background: #E6F1FB; color: #0C447C; }
+.t-teal { background: #E1F5EE; color: #085041; }
+.t-coral { background: #FAECE7; color: #712B13; }
+.t-amber { background: #FAEEDA; color: #633806; }
+.t-purple { background: #EEEDFE; color: #3C3489; }
+.t-gray { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.phase-strip { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.phase-strip:last-child { border-bottom: none; }
+.phase-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.phase-body { flex: 1; }
+.phase-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.phase-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.cost-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.cost-row:last-child { border-bottom: none; }
+.cost-label { color: var(--color-text-secondary); }
+.cost-val { font-weight: 500; color: var(--color-text-primary); }
+.time-block { display: flex; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.time-block:last-child { border-bottom: none; }
+.time-pill { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; min-width: 80px; text-align: center; flex-shrink: 0; }
+.time-text { font-size: 13px; color: var(--color-text-secondary); }
+.insight { border-left: 2px solid #534AB7; padding: .6rem 1rem; margin: 10px 0; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.big-num { font-size: 26px; font-weight: 500; color: var(--color-text-primary); }
+.big-label { font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 12px 0; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .75rem 1rem; }
+@media (prefers-color-scheme: dark) {
+  .t-blue { background: #0C447C; color: #B5D4F4; }
+  .t-teal { background: #085041; color: #9FE1CB; }
+  .t-coral { background: #712B13; color: #F5C4B3; }
+  .t-amber { background: #633806; color: #FAC775; }
+  .t-purple { background: #3C3489; color: #CECBF6; }
+  .tab.active { color: #CECBF6; }
+}
+</style>
+
+<div style="padding: .5rem 0;">
+
+<div class="tab-bar">
+  <button class="tab active" data-tab="overview">The full plan</button>
+  <button class="tab" data-tab="courses">Courses & certs</button>
+  <button class="tab" data-tab="costs">Prices & total</button>
+  <button class="tab" data-tab="jobs">Jobs before founding</button>
+  <button class="tab" data-tab="day">Daily schedule</button>
+  <button class="tab" data-tab="mindset">Mindset</button>
+  <button class="tab" data-tab="connect">How CS connects to robotics</button>
+</div>
+
+<div class="section visible" id="tab-overview">
+  <div class="metrics">
+    <div class="metric"><div class="big-num">12</div><div class="big-label">Total years</div></div>
+    <div class="metric"><div class="big-num">~30</div><div class="big-label">Age you found the company</div></div>
+    <div class="metric"><div class="big-num">3</div><div class="big-label">Fields mastered</div></div>
+    <div class="metric"><div class="big-num">6</div><div class="big-label">Cybersec certs on the side</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Phase 1 — right now to age 22</div>
+    <div class="card-sub">Bachelor's in Computer Science (4 years) + cybersec certs on the side</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C;">Y1</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 1 — build the foundation</div>
+        <div class="phase-desc">Start CS degree. Learn Python and C++ seriously. Do the ISC2 CC cert (free, 2 months). Buy an Arduino and build one small robot project. Start basic German lessons.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C;">Y2</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 2 — go deeper</div>
+        <div class="phase-desc">Study algorithms, data structures, and AI basics at university. Do CompTIA Security+ cert on the side (3-4 months of evening study). Build a second robot project — something with a camera or sensors.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C;">Y3</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 3 — get your hands dirty</div>
+        <div class="phase-desc">Study machine learning and operating systems. Do the eJPT cert — hands-on hacking practice. Start learning ROS (the software all robots use) on weekends. German should be B1 level by now.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C;">Y4</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 4 — finish strong</div>
+        <div class="phase-desc">Final year of CS. Do CEH cert. Apply to TU Munich robotics Master's. GitHub should have 3-4 real robot projects. German should be B2. Write a compelling personal statement.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Phase 2 — age 22 to 24</div>
+    <div class="card-sub">Master's in Robotics at TU Munich (2 years) + advanced cybersec certs</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E1F5EE; color:#085041;">Y5</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 5 — become a robotics engineer</div>
+        <div class="phase-desc">First year at TU Munich. Study kinematics, control systems, computer vision. Do the GICSP cert — industrial and robot security. This is where your two skills start merging into one rare combination.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E1F5EE; color:#085041;">Y6</div>
+      <div class="phase-body">
+        <div class="phase-title">Year 6 — build your reputation</div>
+        <div class="phase-desc">Master's thesis on something nobody has solved yet — ideally at the intersection of robotics and security. Publish it. Start applying to the best robotics companies. Consider OSCP if you have time.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Phase 3 — age 24 to 30</div>
+    <div class="card-sub">Work at elite companies. Save. Build. Then found your own.</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#FAECE7; color:#712B13;">Y7-8</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 24–26 — first job, learn everything</div>
+        <div class="phase-desc">Work at a top robotics company. Boston Dynamics, Figure AI, Tesla Optimus, or a funded startup. Salary $85K–$120K. Save aggressively. Watch how real products are built. Find the problem nobody is solving.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#FAECE7; color:#712B13;">Y9-10</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 26–28 — become elite, build your network</div>
+        <div class="phase-desc">Senior engineer level. $150K–$200K salary. File patents. Speak at conferences. Find your co-founder. Keep building side projects. The problem you are going to solve should be clear by now.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#FAECE7; color:#712B13; font-size:11px; font-weight:500;">Y11-12</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 28–30 — found your company</div>
+        <div class="phase-desc">You have the skills, the network, the savings, and the insight. Raise funding or self-fund. Build something nobody else can. This is what the whole plan has been pointing toward.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-courses">
+  <div class="card">
+    <div class="card-title">CS degree — what you actually study</div>
+    <div class="card-sub">These are the real subjects inside a Computer Science degree, explained simply</div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Programming</span> — writing code in Python, C++, Java. This is the core skill. Everything else builds on it.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Algorithms</span> — learning the smartest ways to solve problems with code. Like learning chess moves instead of just moving pieces randomly.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Data structures</span> — how to organise information so computers can use it fast. Lists, trees, graphs.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Operating systems</span> — how computers manage memory, processes and hardware under the hood. Essential for robotics.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Networks</span> — how computers talk to each other. How the internet works. Critical for understanding robot communication.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">AI and machine learning</span> — teaching computers to learn from data. This is what makes robots intelligent, not just mechanical.</div></div>
+    <div class="row"><div class="dot" style="background:#378ADD"></div><div class="row-text"><span class="row-title">Databases</span> — storing and retrieving information efficiently. Robots need this to remember things.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Robotics Master's — TU Munich</div>
+    <div class="card-sub">What you study on top of your CS base</div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">Kinematics</span> — the mathematics of how robot arms and legs move. How to make a robot reach a target position precisely.</div></div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">Control systems</span> — keeping a robot stable and accurate. How a drone stays level in wind.</div></div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">Computer vision</span> — giving robots eyes. How a robot recognises a cup and knows where to grab it.</div></div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">ROS (Robot Operating System)</span> — the universal software platform all real robots run on. Like Windows but for robots.</div></div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">Embedded systems</span> — writing code that runs directly on hardware chips inside a robot. Very low-level, very powerful.</div></div>
+    <div class="row"><div class="dot" style="background:#1D9E75"></div><div class="row-text"><span class="row-title">Path planning</span> — how a robot figures out the best route to move from A to B without hitting anything.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cybersecurity certifications — the side track</div>
+    <div class="card-sub">One per year, studied in evenings — not full-time</div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Before Year 1 — ISC2 CC</span> (free, 2 months) — basic security concepts. Do this now.</div></div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Year 1 — CompTIA Security+</span> ($390, 3-4 months) — your security foundation. Industry standard. Every employer recognises it.</div></div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Year 2 — eJPT</span> ($200, 2-3 months) — real hands-on hacking practice. You actually hack into machines to pass.</div></div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Year 3 — CEH</span> ($950, 4-6 months) — ethical hacking. Teaches you how attackers think. Directly applicable to finding weaknesses in robot systems.</div></div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Master's Year 1 — GICSP</span> ($979, 4-6 months) — security for industrial machines and robots specifically. The most unique cert for your path.</div></div>
+    <div class="row"><div class="dot" style="background:#D85A30"></div><div class="row-text"><span class="row-title">Master's Year 2 — OSCP</span> ($1,499, 6-12 months) — the hardest and most respected hacking cert. Optional but elite. Only do this if you have capacity.</div></div>
+  </div>
+</div>
+
+<div class="section" id="tab-costs">
+  <div class="card">
+    <div class="card-title">Education costs</div>
+    <div class="card-sub">Estimated total — varies by country for the CS degree</div>
+    <div class="cost-row"><span class="cost-label">CS Bachelor's — EU public university (recommended)</span><span class="cost-val">~€0–€3,000/yr</span></div>
+    <div class="cost-row"><span class="cost-label">CS Bachelor's — UK university</span><span class="cost-val">~£9,250/yr</span></div>
+    <div class="cost-row"><span class="cost-label">CS Bachelor's — US university</span><span class="cost-val">~$30K–$60K/yr</span></div>
+    <div class="cost-row"><span class="cost-label">TU Munich Master's Robotics (international)</span><span class="cost-val">€6,000/semester = €12K/yr</span></div>
+    <div class="cost-row"><span class="cost-label">TU Munich — if you get the fee waiver</span><span class="cost-val" style="color:#0F6E56;">€0</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cybersecurity certification costs</div>
+    <div class="card-sub">Spread across 6 years of study — roughly $70/month average</div>
+    <div class="cost-row"><span class="cost-label">ISC2 CC</span><span class="cost-val" style="color:#0F6E56;">Free</span></div>
+    <div class="cost-row"><span class="cost-label">CompTIA Security+</span><span class="cost-val">~$390</span></div>
+    <div class="cost-row"><span class="cost-label">eJPT</span><span class="cost-val">~$200</span></div>
+    <div class="cost-row"><span class="cost-label">CEH</span><span class="cost-val">~$950</span></div>
+    <div class="cost-row"><span class="cost-label">GICSP</span><span class="cost-val">~$979</span></div>
+    <div class="cost-row"><span class="cost-label">OSCP (optional)</span><span class="cost-val">~$1,499</span></div>
+    <div class="cost-row" style="border-top: 1px solid var(--color-border-secondary); margin-top:4px; padding-top:10px;"><span class="cost-label" style="font-weight:500; color: var(--color-text-primary);">Total certs (without OSCP)</span><span class="cost-val">~$2,519</span></div>
+    <div class="cost-row"><span class="cost-label" style="font-weight:500; color: var(--color-text-primary);">Total certs (with OSCP)</span><span class="cost-val">~$4,018</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Other costs to budget for</div>
+    <div class="card-sub">Hardware for building robots — invest in this, it is how you learn</div>
+    <div class="cost-row"><span class="cost-label">Arduino starter kit</span><span class="cost-val">~$30–$50</span></div>
+    <div class="cost-row"><span class="cost-label">Raspberry Pi (for smarter projects)</span><span class="cost-val">~$80</span></div>
+    <div class="cost-row"><span class="cost-label">Robot arm kit (year 2–3)</span><span class="cost-val">~$150–$400</span></div>
+    <div class="cost-row"><span class="cost-label">German language course (online)</span><span class="cost-val">~$200–$500/yr</span></div>
+    <div class="cost-row"><span class="cost-label">Textbooks and online courses (Coursera etc.)</span><span class="cost-val">~$200–$400/yr</span></div>
+  </div>
+
+  <div class="card" style="border: 1.5px solid #1D9E75;">
+    <div class="card-title">Total estimate — EU CS degree route (smartest option)</div>
+    <div class="metrics">
+      <div class="metric"><div class="big-num">~€15K</div><div class="big-label">CS degree (EU, 4 yrs)</div></div>
+      <div class="metric"><div class="big-num">~€24K</div><div class="big-label">TU Munich Master's (2 yrs)</div></div>
+      <div class="metric"><div class="big-num">~$4K</div><div class="big-label">All certs combined</div></div>
+      <div class="metric"><div class="big-num">~€45K</div><div class="big-label">Total 6 years education</div></div>
+    </div>
+    <div class="insight">Compare this to a US university: MIT would cost $300K+ for the same result. The EU + TU Munich route is the most intelligent financial decision for someone in your position.</div>
+  </div>
+</div>
+
+<div class="section" id="tab-jobs">
+  <div class="card">
+    <div class="card-title">What jobs to do before starting your company</div>
+    <div class="card-sub">The goal of every job is to learn — not just earn</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C; font-size:11px;">Yr 1-4</div>
+      <div class="phase-body">
+        <div class="phase-title">During CS degree — internships and freelance work</div>
+        <div class="phase-desc">Apply for summer internships at tech companies from year 2 onwards. Even small companies count. Build a GitHub with real projects. Do freelance coding (websites, automation scripts) to earn money and build confidence.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E1F5EE; color:#085041; font-size:11px;">Yr 5-6</div>
+      <div class="phase-body">
+        <div class="phase-title">During Master's — research assistant or part-time role</div>
+        <div class="phase-desc">Apply to be a research assistant at TU Munich — paid work inside the robotics lab. Or get a part-time role at a Munich robotics startup. This is where your network starts being built.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#FAECE7; color:#712B13; font-size:11px;">Yr 7-8</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 24–26 — first full job: learn from the best</div>
+        <div class="phase-desc">Target: Boston Dynamics, Figure AI, Waymo, Tesla Optimus, Intrinsic, or a fast-growing robotics startup. You want to see how a real robotics product is built from zero to shipping. Salary: $85K–$120K. Save 30–40% of every paycheck.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#FAECE7; color:#712B13; font-size:11px;">Yr 9-10</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 26–28 — senior role: become elite and visible</div>
+        <div class="phase-desc">Get promoted to senior or lead engineer. File patents. Speak at one industry conference. Start a technical blog or YouTube explaining what you know. This builds your reputation so investors take you seriously when you raise funding.</div>
+      </div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:11px;">Yr 11+</div>
+      <div class="phase-body">
+        <div class="phase-title">Age 28+ — leave and build</div>
+        <div class="phase-desc">By now you have: the skills, the network, the savings ($100K–$200K), the reputation, and the insight into what problem needs solving. That combination is what turns into a funded company.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Startup ideas that will still be wide open in 2030+</div>
+    <div class="card-sub">Pick one to obsess over during your studies — not to start now, but to understand deeply</div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Secure robotics infrastructure</span> — nobody is building the cybersecurity layer for factory and warehouse robots. This is your unique angle combining both skills.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Humanoid robots for developing markets</span> — Figure and Tesla are targeting US/Europe. Africa, South Asia, MENA are completely uncovered. Cheaper hardware, same AI.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Agricultural robots for small farms</span> — current solutions cost $500K+. Nobody is building affordable versions for small-scale farmers.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Robot-as-a-service for SMEs</span> — small businesses can't buy robots. Rent them monthly like software subscriptions.</div></div>
+  </div>
+</div>
+
+<div class="section" id="tab-day">
+  <div class="card">
+    <div class="card-title">Daily structure — university years</div>
+    <div class="card-sub">A day that fits everything: study, faith, training, and building</div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#EEEDFE; color:#3C3489;">5:30 AM</div>
+      <div class="time-text">Wake up. Fajr prayer. 10 minutes of silence — no phone. This is your most important habit. It sets the tone for everything that follows.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#E6F1FB; color:#0C447C;">6:00 AM</div>
+      <div class="time-text">Deep work block 1 — 90 minutes. Study or build something. No distractions. This is your best brain time — use it before the world wakes up.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#E1F5EE; color:#085041;">7:30 AM</div>
+      <div class="time-text">Breakfast. Get ready. Commute or walk to university.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#E6F1FB; color:#0C447C;">9:00 AM</div>
+      <div class="time-text">University lectures and labs. Be present. Ask questions. Sit with the best students.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#FAEEDA; color:#633806;">1:00 PM</div>
+      <div class="time-text">Dhuhr prayer + lunch. Real food, not junk. 20 minute walk if possible. This resets your brain for the afternoon.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#E6F1FB; color:#0C447C;">2:00 PM</div>
+      <div class="time-text">University or deep work block 2 — coursework, projects, or cybersecurity cert study.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#FAEEDA; color:#633806;">5:00 PM</div>
+      <div class="time-text">Asr prayer. Short break — stretch, breathe, step outside for 10 minutes.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#FAECE7; color:#712B13;">5:30 PM</div>
+      <div class="time-text">Training — 3 days a week (boxing, wrestling or weights, 1h15m). On non-training days: build a robot project, work on certs, or rest intentionally.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#FAEEDA; color:#633806;">7:30 PM</div>
+      <div class="time-text">Maghrib prayer. Dinner with no screens. This is recovery time.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#E6F1FB; color:#0C447C;">8:30 PM</div>
+      <div class="time-text">Light work or reading — review notes, watch a technical video, read one chapter. No new hard problems at this hour.</div>
+    </div>
+    <div class="time-block">
+      <div class="time-pill" style="background:#FAEEDA; color:#633806;">10:00 PM</div>
+      <div class="time-text">Isha prayer. Wind down. Phone away. Sleep by 10:30–11:00 PM maximum. Sleep is not optional — it is when your brain consolidates everything you learned.</div>
+    </div>
+    <div class="insight">You do not need 12 hours of studying a day. You need 4–5 hours of completely focused work done consistently every day for 12 years. That beats 12 hours of distracted half-effort every time.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Weekly rhythm</div>
+    <div class="card-sub">How training and deep work balance across the week</div>
+    <div class="grid2">
+      <div class="mini">
+        <div class="mini-title" style="color:#085041;">Training days (3x week)</div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">Mon / Wed / Fri (or Tue / Thu / Sat)</div></div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">1h15m boxing, wrestling, or strength</div></div>
+        <div class="row" style="padding:5px 0; border-bottom:none;"><div class="row-text" style="font-size:12px;">Lighter evening study block on these days</div></div>
+      </div>
+      <div class="mini">
+        <div class="mini-title" style="color:#0C447C;">Deep work days (4x week)</div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">Remaining 4 days — full study or project work</div></div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">Longer evening block (2–3 hours)</div></div>
+        <div class="row" style="padding:5px 0; border-bottom:none;"><div class="row-text" style="font-size:12px;">Sunday: review the week + plan the next one</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-mindset">
+  <div class="card">
+    <div class="card-title">The mindset that makes this work</div>
+    <div class="card-sub">Not motivation — these are operating principles</div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Faith is your anchor, not a side thing.</span> Your prayer is not interrupting your plan — it is structuring it. Every serious builder needs something bigger than ambition to keep going when it gets hard. You already have that.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Consistency beats intensity.</span> Two hours every day for 12 years is worth more than pulling all-nighters in panic. The engineers who built the best things were not the ones who worked hardest for one week — they were the ones who showed up every single day.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Training is not a distraction — it is the engine.</span> Boxing and wrestling teach you the same thing that building companies requires: how to stay calm under pressure, how to take hits and keep going, and how to be disciplined when you don't feel like it.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Build while you study.</span> The certificate or degree is proof you studied. The GitHub and the robots you built are proof you actually understand. Companies hire people who build. Investors fund people who build.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Your background is an advantage.</span> Coming from Bosnia, studying in a French school, speaking multiple languages, understanding different cultures — these things matter enormously when you eventually build products for global markets.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">Do not compare your year 1 to someone else's year 7.</span> Most people who seem far ahead of you started earlier or had more resources. Your job is to be better than yourself last month — nothing else.</div></div>
+    <div class="row"><div class="dot" style="background:#534AB7"></div><div class="row-text"><span class="row-title">The goal is not to be rich — it is to build something real.</span> The money follows people who solve real problems for real people. Focus on the problem, stay obsessed with it for years, and the wealth becomes a side effect of being excellent.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">The most important things — in order</div>
+    <div class="card-sub">If you have to choose, this is the priority ranking</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:13px; font-weight:500;">1</div>
+      <div class="phase-body"><div class="phase-title">Your health and faith</div><div class="phase-desc">Without these, nothing else works long-term. Non-negotiable.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:13px; font-weight:500;">2</div>
+      <div class="phase-body"><div class="phase-title">Learning to code deeply</div><div class="phase-desc">Python and C++ first. Everything builds on this.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:13px; font-weight:500;">3</div>
+      <div class="phase-body"><div class="phase-title">Building real projects</div><div class="phase-desc">A robot you built yourself is worth more than 10 certificates.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:13px; font-weight:500;">4</div>
+      <div class="phase-body"><div class="phase-title">Getting into a great university</div><div class="phase-desc">TU Munich, ETH Zurich, or equivalent. The network matters.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#EEEDFE; color:#3C3489; font-size:13px; font-weight:500;">5</div>
+      <div class="phase-body"><div class="phase-title">The cybersecurity certs</div><div class="phase-desc">Important but secondary. These enhance the main path, they don't replace it.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="tab-connect">
+  <div class="card">
+    <div class="card-title">How CS and robotics connect — explained simply</div>
+    <div class="card-sub">Think of it like building a car</div>
+    <div class="grid2">
+      <div class="mini">
+        <div class="mini-title" style="color:#0C447C;">CS is the engine</div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">You learn how to write code that thinks, learns, and makes decisions.</div></div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">You learn how computers handle memory, speed, and communication.</div></div>
+        <div class="row" style="padding:5px 0; border-bottom:none;"><div class="row-text" style="font-size:12px;">You learn AI — how machines learn from experience.</div></div>
+      </div>
+      <div class="mini">
+        <div class="mini-title" style="color:#085041;">Robotics is the full car</div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">You take the CS engine and put it inside a physical machine.</div></div>
+        <div class="row" style="padding:5px 0;"><div class="row-text" style="font-size:12px;">You learn how to make motors move, sensors see, and arms grab.</div></div>
+        <div class="row" style="padding:5px 0; border-bottom:none;"><div class="row-text" style="font-size:12px;">The robot is nothing without the CS brain you already built.</div></div>
+      </div>
+    </div>
+    <div class="insight">Every single skill from your CS degree is used directly in robotics. Algorithms = how a robot plans its path. Networks = how robots communicate with each other. AI = how robots learn to do tasks. Operating systems = what runs inside the robot's computer chip. You are not starting over when you switch to robotics — you are adding a body to the brain you already built.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">How the transition works — step by step</div>
+    <div class="card-sub">From CS Bachelor's to Robotics Master's</div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C; font-size:11px; font-weight:500;">Step 1</div>
+      <div class="phase-body"><div class="phase-title">Finish CS degree with strong grades</div><div class="phase-desc">You need roughly 70–75% average or above. Focus on AI, networks, and systems courses — these are directly relevant to the robotics admission interview.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C; font-size:11px; font-weight:500;">Step 2</div>
+      <div class="phase-body"><div class="phase-title">Build robot projects during your CS years</div><div class="phase-desc">TU Munich's robotics admission looks at your motivation and practical experience, not just your grades. Your GitHub showing real robot builds is the most powerful thing you can submit.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E6F1FB; color:#0C447C; font-size:11px; font-weight:500;">Step 3</div>
+      <div class="phase-body"><div class="phase-title">Apply in your final year of CS</div><div class="phase-desc">Applications typically open October–December. You submit your grades, a 2-page personal statement, a 1,000-word essay, and your CV. If shortlisted, you attend an admission interview.</div></div>
+    </div>
+    <div class="phase-strip">
+      <div class="phase-num" style="background:#E1F5EE; color:#085041; font-size:11px; font-weight:500;">Step 4</div>
+      <div class="phase-body"><div class="phase-title">Arrive at TU Munich already ahead</div><div class="phase-desc">Because you already know how to code in C++ and Python, and you have already used ROS and Arduino, the first semester will feel manageable. Most students from pure mechanical backgrounds struggle with the coding side. You won't.</div></div>
+    </div>
+    <div class="insight">The CS degree is not a detour. It is the reason you will be better than most robotics Master's students at TU Munich when you arrive. You show up already able to code. That is not a small thing — it is a massive advantage.</div>
+  </div>
+
+  <div style="text-align: right; margin-top: 8px;">
+    <button onclick="sendPrompt('What should I actually do this week to start this plan — I am 18, learning Python and C++ right now, in Bosnia.')">What do I do this week? ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('visible'); });
+    btn.classList.add('active');
+    var target = document.getElementById('tab-' + btn.dataset.tab);
+    if (target) target.classList.add('visible');
+  });
+});
+</script>
