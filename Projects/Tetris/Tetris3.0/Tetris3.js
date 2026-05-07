@@ -172,7 +172,7 @@ function spawnPiece(){
     
     if (!isValidPosition(0, 0)) {
         alert("Game Over!");
-        board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+        board = Array.from({ length: ROWS }, () => Array(COLS).fill(null)); // 
         current = createPiece();
 
         pX = 3;
@@ -182,7 +182,7 @@ function spawnPiece(){
 
 //event listeners
 
-document.addEventListener("keydown", function(event){
+/*document.addEventListener("keydown", function(event){
 
     if(event.key === "ArrowLeft"){
         if(pX > 0){ //ako nije na lijevoj ivici, onda se moze pomjeriti lijevo
@@ -208,8 +208,29 @@ document.addEventListener("keydown", function(event){
 
     draw();
 
-});
+});*/
 
+document.addEventListener("keydown", function(event){
+    if(event.key === "ArrowLeft"){
+        if(isValidPosition(-1, 0)){
+            pX--;
+        }
+    }
+    else if(event.key === "ArrowRight"){
+        if(isValidPosition(1,0)){
+            pX++;
+        }
+    }
+    else if(event.key === "ArrowDown"){
+        if(isValidPosition(0,1)){
+            pY++;
+        }
+    }
+    if(event.key === "ArrowUp"){
+        rotate(current);
+    }
+    draw();
+});
 
 setInterval(()=>{
     if(isValidPosition(0,1)){
@@ -219,7 +240,7 @@ setInterval(()=>{
         spawnPiece();
     }
     draw();
-}, 800);
+}, 300);
 
 
 draw();
