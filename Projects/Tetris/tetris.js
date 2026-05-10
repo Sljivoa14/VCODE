@@ -280,9 +280,9 @@ function moveDown() {
 
 // funkcije za update score, level, lines
 function updateUI() {
-    scoreDisplay.textContent = score;
-    levelDisplay.textContent = level;
-    linesDisplay.textContent = lines;
+    scoreDisplay.textContent = score; // update score
+    levelDisplay.textContent = level; // update level
+    linesDisplay.textContent = lines; // update lines
 }
 // hard drop funkcija
 

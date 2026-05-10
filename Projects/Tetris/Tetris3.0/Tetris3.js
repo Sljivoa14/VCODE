@@ -19,6 +19,7 @@ const TETROMINOS = {                // define shapes for each piece type
         [0, 0, 0, 0],
         [0, 0, 0, 0]
     ],
+
     J: [
         [1, 0, 0],
         [1, 1, 1],
@@ -49,6 +50,161 @@ const TETROMINOS = {                // define shapes for each piece type
         [0, 0, 0]
     ]
 };
+/*
+const I = [
+  [
+    [1, 1, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ],
+  [
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0]
+  ],
+  [
+    [1, 1, 1, 1],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ],
+  [
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0]
+  ]
+];
+
+const J = [
+  [
+    [1, 0, 0],
+    [1, 1, 1],
+    [0, 0, 0]
+  ],
+  [
+    [0, 1, 1],
+    [0, 1, 0],
+    [0, 1, 0]
+  ],
+  [
+    [0, 0, 0],
+    [1, 1, 1],
+    [0, 0, 1]
+  ],
+  [
+    [0, 1, 0],
+    [0, 1, 0],
+    [1, 1, 0]
+  ]
+];
+
+const L = [
+  [
+    [0, 0, 1],
+    [1, 1, 1],
+    [0, 0, 0]
+  ],
+  [
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 1]
+  ],
+  [
+    [0, 0, 0],
+    [1, 1, 1],
+    [1, 0, 0]
+  ],
+  [
+    [1, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0]
+  ]
+];
+
+const O = [
+  [
+    [1, 1],
+    [1, 1]
+  ]
+];
+
+const S = [
+  [
+    [0, 1, 1],
+    [1, 1, 0],
+    [0, 0, 0]
+  ],
+  [
+    [0, 1, 0],
+    [0, 1, 1],
+    [0, 0, 1]
+  ],
+  [
+    [0, 0, 0],
+    [0, 1, 1],
+    [1, 1, 0]
+  ],
+  [
+    [1, 0, 0],
+    [1, 1, 0],
+    [0, 1, 0]
+  ]
+];
+
+const T = [
+  [
+    [0, 1, 0],
+    [1, 1, 1],
+    [0, 0, 0]
+  ],
+  [
+    [0, 1, 0],
+    [0, 1, 1],
+    [0, 1, 0]
+  ],
+  [
+    [0, 0, 0],
+    [1, 1, 1],
+    [0, 1, 0]
+  ],
+  [
+    [0, 1, 0],
+    [1, 1, 0],
+    [0, 1, 0]
+  ]
+];
+
+const Z = [
+  [
+    [1, 1, 0],
+    [0, 1, 1],
+    [0, 0, 0]
+  ],
+  [
+    [0, 0, 1],
+    [0, 1, 1],
+    [0, 1, 0]
+  ],
+  [
+    [0, 0, 0],
+    [1, 1, 0],
+    [0, 1, 1]
+  ],
+  [
+    [0, 1, 0],
+    [1, 1, 0],
+    [1, 0, 0]
+  ]
+];
+
+
+const userName = prompt("please write your username to procceed: ");
+if(userName=== Number){
+    alert("u can not type numbers ")
+}*/
 
 const COLS = 10;
 const ROWS = 20;
@@ -79,7 +235,7 @@ function drawSquare(x, y, color) {
 drawBoard();
 
 //rotate
-function rotate(piece) {
+function rotate() {
     const rotated = current.shape[0].map((_, i) => 
         current.shape.map(row => row[i]).reverse());
     const originalShape= current.shape;
@@ -110,6 +266,16 @@ function isValidPosition(offsetX = 0, offsetY = 0) {
     }
     return true;
 }
+
+//there is many coordinate systems in JS such as:
+// There are MANY coordinate systems in JS:
+/*
+Property:  	 Relative to:
+offsetX/Y	 element itself
+clientX/Y	 browser window
+pageX/Y	     entire webpage
+screenX/Y	 physical monitor
+*/
 
 function movingPiece(){
     //if(isValidPosition(0,1)){}
@@ -163,9 +329,25 @@ function merge(){
     });
 }
 
+//delete line
+function clearLine(){
+    //make the lines dissapear after complete a line like in tetris
+    for(let row = ROWS - 1; row >= 0; row--){
+        const fullRow = board[row].every(cell => cell !== null);
+        if(fullRow){
+            board.splice(row, 1);
+            board.unshift(Array(COLS).fill(null));
+
+            row++;
+        }
+    }
+    
+}
+
 //spawn new piece
 function spawnPiece(){
     merge();
+    clearLine();
     current = createpiece();
     pX = 3;
     pY = 0;
@@ -173,7 +355,7 @@ function spawnPiece(){
     if (!isValidPosition(0, 0)) {
         alert("Game Over!");
         board = Array.from({ length: ROWS }, () => Array(COLS).fill(null)); // 
-        current = createPiece();
+        current = createpiece();
 
         pX = 3;
         pY = 0;
@@ -231,6 +413,11 @@ document.addEventListener("keydown", function(event){
     }
     draw();
 });
+/*
+canvas.addEventListener("mousemove", (e) => {
+    mouse.x = e.offsetX;
+    mouse.y = e.offsetY;
+});*/
 
 setInterval(()=>{
     if(isValidPosition(0,1)){
@@ -244,3 +431,28 @@ setInterval(()=>{
 
 
 draw();
+
+/*
+if (<canvas width="800" height="600" style="width:400px;height:300px"></canvas>){
+    const scaleX = canvas.width / canvas.clientWidth;
+    const sclaeY = canvas.hight / canvas.clientHeight;
+
+    const x = e.offsetX * scaleX;
+    const y = e.offsetY * sclaeY;
+}
+
+
+Canvas Position:
+(0,0) ------------------> X
+  |         
+  |
+  |
+  v
+  Y
+
+  top left is always (0, 0);
+  so if offsetX = 200;
+  and offsetY = 100;
+means: 200 right
+       100 down
+*/

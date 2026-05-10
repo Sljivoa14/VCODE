@@ -16,6 +16,7 @@ const logHealMode = 'Player Heal';
 const logMonsterAttackMode = 'Monster Attack';
 const logGameOver = 'Game Over';
 
+
 let battleLog = [];
 
 updateHealthBars();
@@ -68,21 +69,20 @@ else{
 
 //atack
 attackBtn.addEventListener("click", function() {
-    const playerDamage = Math.floor(Math.random() * 15) + 5;
-    const monsterDamage = Math.floor(Math.random() * 15) + 5;
+    let playerDamage = Math.floor(Math.random() * 15) + 5;
+    let monsterDamage = Math.floor(Math.random() * 15) + 5;
     monsterHealth -= playerDamage;// monsterHealth = monsterHealth - playerDamage
     playerHealth -= monsterDamage;// playerHealth = playerHealth - monsterDamage
     updateHealthBars();
     checkGameOver();
-    battleLog.push(`Player attacked for ${playerDamage} damage. Monster attacked for ${monsterDamage} damage.`);
+    battleLog.push(`Player attacked for ${playerDamage}, damage. Monster attacked for ${monsterDamage} damage.`);
 });
-writeLog(logNormalAttackMode, `Player attacked for ${playerDamage} damage. Monster attacked for ${monsterDamage} damage.`, playerHealth, monsterHealth);
 
 
 //strong atack
 strongAttackBtn.addEventListener("click", function() {
-    const playerDamage = Math.floor(Math.random() * 25) + 10;   
-    const monsterDamage = Math.floor(Math.random() * 15) + 10;
+    playerDamage = Math.floor(Math.random() * 25) + 10;   
+    monsterDamage = Math.floor(Math.random() * 15) + 10;
     monsterHealth -= playerDamage;
     playerHealth -= monsterDamage;
     updateHealthBars();
