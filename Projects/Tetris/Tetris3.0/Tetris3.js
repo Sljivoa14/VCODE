@@ -307,7 +307,7 @@ function createpiece(){
 current = createpiece();
 
 function drawPlayer(){
-    drawSquare(pX, pY, "red");
+    //drawSquare(pX, pY, "red");
 }
 
 function draw(){
